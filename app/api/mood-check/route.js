@@ -7,7 +7,7 @@ export async function POST(req) {
   try {
     const { moodContext = {} } = await req.json()
 
-    const model = google("gemini-1.5-pro")
+    const model = google("gemini-2.5-flash")
     const { chain } = createMentalWellnessChain(model, "webApp")
 
     // Generate mood check-in

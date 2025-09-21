@@ -11,7 +11,7 @@ export async function POST(req) {
       return Response.json({ error: "Message is required" }, { status: 400 })
     }
 
-    const model = google("gemini-1.5-pro")
+    const model = google("gemini-2.5-flash")
     const { chain } = createMentalWellnessChain(model, "webApp", {
       crisisEscalation: true,
       anonymousMode: true,

@@ -7,7 +7,6 @@ import Header from "./Header"
 import ChatPane from "./ChatPane"
 import GhostIconButton from "./GhostIconButton"
 import ThemeToggle from "./ThemeToggle"
-import { INITIAL_CONVERSATIONS, INITIAL_TEMPLATES, INITIAL_FOLDERS } from "./mockData"
 import { useCrisisDetection } from "../hooks/use-crisis-detection"
 import { useMoodTracking } from "../hooks/use-mood-tracking"
 import { useResources } from "../hooks/use-resources"
@@ -76,10 +75,10 @@ export default function AIAssistantUI() {
     } catch {}
   }, [sidebarCollapsed])
 
-  const [conversations, setConversations] = useState(INITIAL_CONVERSATIONS)
+  const [conversations, setConversations] = useState([])
   const [selectedId, setSelectedId] = useState(null)
-  const [templates, setTemplates] = useState(INITIAL_TEMPLATES)
-  const [folders, setFolders] = useState(INITIAL_FOLDERS)
+  const [templates, setTemplates] = useState([])
+  const [folders, setFolders] = useState([])
 
   const [query, setQuery] = useState("")
   const searchRef = useRef(null)
