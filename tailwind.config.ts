@@ -63,11 +63,37 @@ const config: Config = {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        // Glassmorphic color utilities
+        glass: {
+          white: 'rgba(255, 255, 255, 0.1)',
+          'white-hover': 'rgba(255, 255, 255, 0.15)',
+          'white-strong': 'rgba(255, 255, 255, 0.2)',
+          black: 'rgba(0, 0, 0, 0.1)',
+          'black-hover': 'rgba(0, 0, 0, 0.15)',
+          'black-strong': 'rgba(0, 0, 0, 0.2)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      backdropBlur: {
+        'xs': '2px',
+        'sm': '4px',
+        'md': '8px',
+        'lg': '16px',
+        'xl': '24px',
+        '2xl': '40px',
+        '3xl': '64px',
+      },
+      boxShadow: {
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.1)',
+        'glass-sm': '0 2px 8px 0 rgba(0, 0, 0, 0.1)',
+        'glass-lg': '0 16px 48px 0 rgba(0, 0, 0, 0.15)',
+        'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+        'glass-dark-sm': '0 2px 8px 0 rgba(0, 0, 0, 0.3)',
+        'glass-dark-lg': '0 16px 48px 0 rgba(0, 0, 0, 0.4)',
       },
       keyframes: {
         'accordion-down': {
@@ -111,6 +137,30 @@ const config: Config = {
           '&::-webkit-scrollbar': {
             display: 'none',
           },
+        },
+        // Glassmorphic utilities
+        '.glass': {
+          'background': 'var(--glass-background)',
+          'backdrop-filter': 'blur(var(--glass-backdrop-blur))',
+          '-webkit-backdrop-filter': 'blur(var(--glass-backdrop-blur))',
+          'border': '1px solid var(--glass-border)',
+          'box-shadow': 'var(--glass-shadow)',
+        },
+        '.glass-hover:hover': {
+          'background': 'var(--glass-background-hover)',
+          'border-color': 'var(--glass-border-hover)',
+        },
+        '.glass-subtle': {
+          'background': 'rgba(255, 255, 255, 0.02)',
+          'backdrop-filter': 'blur(8px)',
+          '-webkit-backdrop-filter': 'blur(8px)',
+          'border': '1px solid rgba(255, 255, 255, 0.08)',
+        },
+        '.glass-strong': {
+          'background': 'rgba(255, 255, 255, 0.1)',
+          'backdrop-filter': 'blur(24px)',
+          '-webkit-backdrop-filter': 'blur(24px)',
+          'border': '1px solid rgba(255, 255, 255, 0.15)',
         },
       }
       addUtilities(newUtilities)

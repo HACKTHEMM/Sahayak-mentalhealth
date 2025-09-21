@@ -17,14 +17,14 @@ function ThinkingMessage({ onPause }) {
     <Message role="assistant">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1">
-          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.3s]"></div>
-          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400 [animation-delay:-0.15s]"></div>
-          <div className="h-2 w-2 animate-bounce rounded-full bg-zinc-400"></div>
+          <div className="h-2 w-2 animate-bounce rounded-full bg-glass-white [animation-delay:-0.3s]"></div>
+          <div className="h-2 w-2 animate-bounce rounded-full bg-glass-white [animation-delay:-0.15s]"></div>
+          <div className="h-2 w-2 animate-bounce rounded-full bg-glass-white"></div>
         </div>
-        <span className="text-sm text-zinc-500">Sahayak is thinking...</span>
+        <span className="text-sm text-glass/70">Sahayak is thinking...</span>
         <button
           onClick={onPause}
-          className="ml-auto inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-1 text-xs text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="ml-auto glass-subtle rounded-full px-2 py-1 text-xs text-glass glass-hover"
         >
           <Square className="h-3 w-3" /> Pause
         </button>
@@ -126,7 +126,7 @@ const ChatPane = forwardRef(function ChatPane(
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col">
+    <div className="flex h-full min-h-0 flex-1 flex-col glass-bg">
 
       <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8" style={{
         maxWidth: '800px',
@@ -134,19 +134,19 @@ const ChatPane = forwardRef(function ChatPane(
         marginRight: 'auto'
       }}>
         <div className="mb-2 text-3xl font-serif tracking-tight sm:text-4xl md:text-5xl">
-          <span className="block leading-[1.05] font-sans text-2xl">
+          <span className="block leading-[1.05] font-sans text-2xl text-glass">
             {conversation.title === "New Chat" ? "Chat with Sahayak" : conversation.title}
           </span>
         </div>
-        <div className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="mb-4 text-sm text-glass/70">
           Updated {timeAgo(conversation.updatedAt)} · {count} messages
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2 border-b border-zinc-200 pb-5 dark:border-zinc-800">
+        <div className="mb-6 flex flex-wrap gap-2 border-b border-white/20 dark:border-white/10 pb-5">
           {tags.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:text-zinc-200"
+              className="inline-flex items-center rounded-full glass-subtle px-3 py-1 text-xs text-glass border-white/20 dark:border-white/10"
             >
               {t}
             </span>
@@ -178,29 +178,29 @@ const ChatPane = forwardRef(function ChatPane(
 
         {messages.length === 0 ? (
           <div className="space-y-4">
-            <div className="rounded-xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+            <div className="glass-gradient rounded-xl p-6 text-sm text-glass">
               <div className="text-center">
-                <h3 className="font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                <h3 className="font-medium text-glass mb-2">
                   Namaste! I'm Sahayak, your mental wellness companion.
                 </h3>
                 <p className="mb-4">
                   I'm here to provide culturally sensitive support for Indian youth. You can talk to me about:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
-                  <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                  <div className="p-3 rounded-lg glass-strong">
                     <strong>Academic Stress:</strong> Board exams, competitive entrance tests, career pressure
                   </div>
-                  <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
+                  <div className="p-3 rounded-lg glass-strong">
                     <strong>Family Dynamics:</strong> Expectations, relationships, cultural conflicts
                   </div>
-                  <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20">
+                  <div className="p-3 rounded-lg glass-strong">
                     <strong>Social Challenges:</strong> Peer pressure, identity, relationships
                   </div>
-                  <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20">
+                  <div className="p-3 rounded-lg glass-strong">
                     <strong>Life Transitions:</strong> College, career, independence, marriage
                   </div>
                 </div>
-                <p className="mt-4 text-xs">All conversations are confidential. I'm here to listen without judgment.</p>
+                <p className="mt-4 text-xs text-glass/70">All conversations are confidential. I'm here to listen without judgment.</p>
               </div>
             </div>
 
@@ -208,13 +208,13 @@ const ChatPane = forwardRef(function ChatPane(
             <div className="flex flex-wrap gap-2 justify-center">
               <button
                 onClick={() => setShowMoodTracker(!showMoodTracker)}
-                className="px-4 py-2 rounded-lg bg-blue-100 text-blue-700 text-sm hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300"
+                className="px-4 py-2 rounded-lg glass-subtle text-glass text-sm glass-hover"
               >
                 Track My Mood
               </button>
               <button
                 onClick={() => setShowResources(!showResources)}
-                className="px-4 py-2 rounded-lg bg-green-100 text-green-700 text-sm hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300"
+                className="px-4 py-2 rounded-lg glass-subtle text-glass text-sm glass-hover"
               >
                 Find Resources
               </button>
@@ -237,29 +237,29 @@ const ChatPane = forwardRef(function ChatPane(
             {messages.map((m) => (
               <div key={m.id} className="space-y-2">
                 {editingId === m.id ? (
-                  <div className={cls("rounded-2xl border p-2", "border-zinc-200 dark:border-zinc-800")}>
+                  <div className={cls("rounded-2xl p-2 glass-strong")}>
                     <textarea
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
-                      className="w-full resize-y rounded-xl bg-transparent p-2 text-sm outline-none"
+                      className="w-full resize-y rounded-xl bg-transparent p-2 text-sm outline-none text-glass placeholder:text-glass/50"
                       rows={3}
                     />
                     <div className="mt-2 flex items-center gap-2">
                       <button
                         onClick={saveEdit}
-                        className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-3 py-1.5 text-xs text-white dark:bg-white dark:text-zinc-900"
+                        className="inline-flex items-center gap-1 rounded-full glass-strong px-3 py-1.5 text-xs text-glass"
                       >
                         <Check className="h-3.5 w-3.5" /> Save
                       </button>
                       <button
                         onClick={saveAndResend}
-                        className="inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs"
+                        className="inline-flex items-center gap-1 rounded-full glass-subtle px-3 py-1.5 text-xs text-glass"
                       >
                         <RefreshCw className="h-3.5 w-3.5" /> Save & Resend
                       </button>
                       <button
                         onClick={cancelEdit}
-                        className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs"
+                        className="inline-flex items-center gap-1 rounded-full glass-subtle px-3 py-1.5 text-xs text-glass"
                       >
                         <X className="h-3.5 w-3.5" /> Cancel
                       </button>
@@ -267,9 +267,9 @@ const ChatPane = forwardRef(function ChatPane(
                   </div>
                 ) : (
                   <Message role={m.role}>
-                    <div className="whitespace-pre-wrap">{m.content}</div>
+                    <div className="whitespace-pre-wrap text-glass">{m.content}</div>
                     {m.role === "user" && (
-                      <div className="mt-1 flex gap-2 text-[11px] text-zinc-500">
+                      <div className="mt-1 flex gap-2 text-[11px] text-glass/70">
                         <button className="inline-flex items-center gap-1 hover:underline" onClick={() => startEdit(m)}>
                           <Pencil className="h-3.5 w-3.5" /> Edit
                         </button>
@@ -284,8 +284,8 @@ const ChatPane = forwardRef(function ChatPane(
                     {m.role === "assistant" &&
                       m.mentalWellnessData?.crisisLevel &&
                       m.mentalWellnessData.crisisLevel !== "LOW" && (
-                        <div className="mt-2 text-xs text-zinc-500">
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
+                        <div className="mt-2 text-xs text-glass/70">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full glass-subtle text-glass">
                             Crisis Level: {m.mentalWellnessData.crisisLevel}
                           </span>
                         </div>

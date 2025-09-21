@@ -572,7 +572,7 @@ Is there something specific you'd like to talk about right now?`,
   const showLandingPage = conversations.length === 0
 
   return (
-    <div className="h-screen w-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 overflow-hidden">
+    <div className="h-screen w-full glass-bg text-foreground overflow-hidden">
       {showLandingPage ? (
         <LandingPage 
           onGetStarted={createNewChat}
@@ -583,21 +583,29 @@ Is there something specific you'd like to talk about right now?`,
         />
       ) : (
         <>
-          <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-2 border-b border-zinc-200/60 bg-white/80 px-3 py-2 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70">
-            <div className="ml-1 flex items-center gap-2 text-sm font-semibold tracking-tight">
+          <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-2 glass border-b border-white/20 dark:border-white/10 px-3 py-2">
+            <div className="ml-1 flex items-center gap-2 text-sm font-semibold tracking-tight text-glass">
               <span className="inline-flex h-4 w-4 items-center justify-center">✱</span> Sahayak
             </div>
             <div className="ml-auto flex items-center gap-2">
-              <GhostIconButton label="Schedule">
-                <Calendar className="h-4 w-4" />
-              </GhostIconButton>
-              <GhostIconButton label="Apps">
-                <LayoutGrid className="h-4 w-4" />
-              </GhostIconButton>
-              <GhostIconButton label="More">
-                <MoreHorizontal className="h-4 w-4" />
-              </GhostIconButton>
-              <ThemeToggle theme={theme} setTheme={setTheme} />
+              <div className="glass-subtle rounded-xl p-1">
+                <GhostIconButton label="Schedule">
+                  <Calendar className="h-4 w-4 text-glass" />
+                </GhostIconButton>
+              </div>
+              <div className="glass-subtle rounded-xl p-1">
+                <GhostIconButton label="Apps">
+                  <LayoutGrid className="h-4 w-4 text-glass" />
+                </GhostIconButton>
+              </div>
+              <div className="glass-subtle rounded-xl p-1">
+                <GhostIconButton label="More">
+                  <MoreHorizontal className="h-4 w-4 text-glass" />
+                </GhostIconButton>
+              </div>
+              <div className="glass-subtle rounded-xl p-1">
+                <ThemeToggle theme={theme} setTheme={setTheme} />
+              </div>
             </div>
           </div>
 
