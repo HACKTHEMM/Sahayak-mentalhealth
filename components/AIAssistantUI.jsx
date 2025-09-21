@@ -14,13 +14,16 @@ import culturalAdaptationEngine from "../lib/cultural-adaptation"
 import crisisEscalationManager from "../lib/crisis-escalation"
 
 export default function AIAssistantUI() {
-  const [theme, setTheme] = useState(() => {
+  const [theme, setTheme] = useState("light")
+
+  useEffect(() => {
     const saved = typeof window !== "undefined" && localStorage.getItem("theme")
-    if (saved) return saved
-    if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
-      return "dark"
-    return "light"
-  })
+    if (saved) {
+      setTheme(saved)
+    } else if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark")
+    }
+  }, [])
 
   useEffect(() => {
     try {
@@ -46,28 +49,36 @@ export default function AIAssistantUI() {
   }, [])
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [collapsed, setCollapsed] = useState(() => {
+  const [collapsed, setCollapsed] = useState({ pinned: true, recent: false, folders: true, templates: true })
+  
+  useEffect(() => {
     try {
       const raw = localStorage.getItem("sidebar-collapsed")
-      return raw ? JSON.parse(raw) : { pinned: true, recent: false, folders: true, templates: true }
+      if (raw) {
+        setCollapsed(JSON.parse(raw))
+      }
     } catch {
-      return { pinned: true, recent: false, folders: true, templates: true }
+      // Keep default values
     }
-  })
+  }, [])
   useEffect(() => {
     try {
       localStorage.setItem("sidebar-collapsed", JSON.stringify(collapsed))
     } catch {}
   }, [collapsed])
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("sidebar-collapsed-state")
-      return saved ? JSON.parse(saved) : false
+      if (saved) {
+        setSidebarCollapsed(JSON.parse(saved))
+      }
     } catch {
-      return false
+      // Keep default value
     }
-  })
+  }, [])
 
   useEffect(() => {
     try {
@@ -86,18 +97,24 @@ export default function AIAssistantUI() {
   const [isThinking, setIsThinking] = useState(false)
   const [thinkingConvId, setThinkingConvId] = useState(null)
 
-  const [userProfile, setUserProfile] = useState(() => {
+  const [userProfile, setUserProfile] = useState({})
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("user-cultural-profile")
-      return saved ? JSON.parse(saved) : {}
+      if (saved) {
+        setUserProfile(JSON.parse(saved))
+      }
     } catch {
-      return {}
+      // Keep default value
     }
-  })
+  }, [])
 
-  const [showProfileSetup, setShowProfileSetup] = useState(() => {
-    return Object.keys(userProfile).length === 0
-  })
+  const [showProfileSetup, setShowProfileSetup] = useState(false)
+
+  useEffect(() => {
+    setShowProfileSetup(Object.keys(userProfile).length === 0)
+  }, [userProfile])
 
   // Mental wellness hooks
   const crisisDetection = useCrisisDetection()
@@ -397,7 +414,7 @@ Is there something specific you'd like to talk about right now?`,
     <div className="h-screen w-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 overflow-hidden">
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-2 border-b border-zinc-200/60 bg-white/80 px-3 py-2 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70">
         <div className="ml-1 flex items-center gap-2 text-sm font-semibold tracking-tight">
-          <span className="inline-flex h-4 w-4 items-center justify-center">✱</span> AI Assistant
+          <span className="inline-flex h-4 w-4 items-center justify-center">✱</span> Sahayak
         </div>
         <div className="ml-auto flex items-center gap-2">
           <GhostIconButton label="Schedule">
