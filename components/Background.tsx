@@ -56,7 +56,7 @@ export const Background = ({ src, placeholder }: {
   placeholder?: string
 }) => {
   const isVideo = src.includes('.mp4') || src.includes('.webm')
-  const className = "absolute inset-0 w-full h-full object-cover rounded-3xl"
+  const className = "absolute inset-0 w-full h-full object-cover"
 
   if (isVideo) {
     return <VideoWithPlaceholder src={src} className={className} placeholder={placeholder} />

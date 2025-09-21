@@ -7,32 +7,27 @@ import ThemeToggle from "./ThemeToggle"
 
 export default function LandingPage({ onGetStarted, userProfile, onShowProfileSetup, theme, setTheme }) {
   return (
-    <main className="p-4 h-screen w-full">
+    <main className=" h-screen w-full">
       <div className="relative h-full w-full">
         <Background 
-          src="/your-video.mp4" 
-          placeholder="/your-image.jpg" 
+          src="/alt.mp4" 
+          placeholder="/landscape.png" 
         />
         
-        {/* Theme Toggle - Top Right */}
-        <div className="absolute top-4 right-4 z-10">
-          <div className="glass rounded-2xl p-1">
-            <ThemeToggle theme={theme} setTheme={setTheme} />
-          </div>
-        </div>
+       
         
         {/* Landing Content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full w-full gap-8">
           {/* Main Title with Glassmorphic Background */}
-          <div className="glass-gradient rounded-3xl p-8 text-center">
-            <h1 className="font-serif text-5xl sm:text-8xl lg:text-9xl italic text-glass drop-shadow-2xl">
+          <div className=" p-8 text-center">
+            <h1 className="text-white font-serif text-5xl sm:text-8xl lg:text-9xl italic">
               Sahayak
             </h1>
           </div>
           
           {/* Subtitle with Glassmorphic Background */}
-          <div className="glass-subtle rounded-2xl px-6 py-3">
-            <p className="font-sans-serif text-xl italic text-glass mx-auto">
+          <div className="rounded-2xl px-6 py-3">
+            <p className=" text-white font-sans-serif text-xl italic mx-auto">
               Your Mental Health Companion
             </p>
           </div>
