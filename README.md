@@ -27,10 +27,14 @@ A culturally-sensitive AI-powered mental wellness companion designed specificall
 ## 🚀 Tech Stack
 
 - **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, Radix UI components
-- **AI Integration**: Vercel AI SDK with Google AI
+- **Styling**: Tailwind CSS, Radix UI components, Framer Motion
+- **AI Integration**: Vercel AI SDK with Google Generative AI
 - **State Management**: React hooks and local storage
 - **UI Components**: Custom component library with shadcn/ui
+- **Form Handling**: React Hook Form with Zod validation
+- **Charts & Visualization**: Recharts
+- **Notifications**: Sonner toast library
+- **Package Manager**: pnpm (recommended)
 - **Analytics**: Vercel Analytics integration
 
 ## 📋 Prerequisites
@@ -46,7 +50,7 @@ Before running this project, make sure you have:
 ### 1. Clone the Repository
 ```bash
 git clone <repository-url>
-cd aiassistantuisplit
+cd "aiassistantuisplit (1)"
 ```
 
 ### 2. Install Dependencies
@@ -127,34 +131,60 @@ aiassistantuisplit/
 │   ├── MoodTracker.jsx          # Mood tracking component
 │   ├── CrisisAlert.jsx          # Crisis detection alerts
 │   ├── CulturalProfileSetup.jsx # Cultural background setup
-│   └── ...                     # Other components
+│   ├── Background.tsx           # Background component
+│   ├── LandingPage.jsx          # Landing page component
+│   └── ...                     # Other UI components
 ├── hooks/                       # Custom React hooks
 │   ├── use-crisis-detection.js  # Crisis monitoring hook
 │   ├── use-mood-tracking.js     # Mood tracking hook
-│   └── use-resources.js         # Resource management hook
+│   ├── use-resources.js         # Resource management hook
+│   └── use-toast.ts             # Toast notification hook
 ├── lib/                         # Utility libraries
 │   ├── mental-wellness.js       # AI prompt templates and chains
 │   ├── crisis-escalation.js     # Crisis management system
 │   ├── cultural-adaptation.js   # Cultural context engine
+│   ├── test-utils.js            # Testing utilities
 │   └── utils.ts                 # General utilities
+├── public/                      # Static assets
+│   ├── placeholder images       # UI placeholder images
+│   └── demo videos              # Demo content
 └── styles/                      # Additional styles
+    └── globals.css              # Global CSS styles
 ```
 
 ## 🔧 Configuration
 
 ### Theme Configuration
-The application supports automatic theme detection and manual theme switching. Themes are persisted in localStorage.
+The application supports automatic theme detection and manual theme switching. Themes are persisted in localStorage and include:
+- Light mode
+- Dark mode
+- System preference detection
 
 ### Cultural Adaptation
-The cultural adaptation engine can be configured for different regions and cultural contexts. The default configuration is optimized for Indian youth.
+The cultural adaptation engine can be configured for different regions and cultural contexts. Features include:
+- Indian cultural context optimization
+- Family dynamics awareness
+- Regional language support (Hinglish)
+- Culturally appropriate conversation starters
 
 ### Crisis Detection Settings
-Crisis detection sensitivity and escalation protocols can be adjusted in the `crisis-escalation.js` file.
+Crisis detection includes multiple levels with automatic escalation:
+- **LOW**: Normal conversation flow
+- **MEDIUM**: Increased monitoring and resource suggestions
+- **HIGH**: Immediate crisis resources and escalation protocols
+
+### Storage & Persistence
+All user data is stored locally using localStorage:
+- Conversation history
+- User preferences
+- Cultural profile
+- Mood tracking data
+- Theme preferences
 
 ## 🧪 API Endpoints
 
 ### `/api/mental-wellness`
-Main AI conversation endpoint that processes user messages and returns culturally-adapted responses.
+Main AI conversation endpoint that processes user messages and returns culturally-adapted responses with crisis detection.
 
 **POST Request Body:**
 ```json
@@ -164,8 +194,19 @@ Main AI conversation endpoint that processes user messages and returns culturall
     "sessionId": "unique_session_id",
     "ageContext": "college student",
     "conversationHistory": "Previous conversation context",
-    "moodIndicators": "Recent mood data"
+    "moodIndicators": "Recent mood data",
+    "culturalProfile": "User's cultural background"
   }
+}
+```
+
+**Response Format:**
+```json
+{
+  "response": "AI assistant response",
+  "crisisLevel": "LOW|MEDIUM|HIGH",
+  "followUpNeeded": boolean,
+  "sessionId": "session_identifier"
 }
 ```
 
@@ -173,7 +214,7 @@ Main AI conversation endpoint that processes user messages and returns culturall
 Endpoint for processing mood check-ins and wellness factor tracking.
 
 ### `/api/resources`
-Endpoint for fetching curated mental health resources based on user context.
+Endpoint for fetching curated mental health resources based on user context and current mood.
 
 ## 🔒 Privacy & Security
 
