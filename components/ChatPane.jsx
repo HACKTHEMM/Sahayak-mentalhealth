@@ -100,22 +100,26 @@ const ChatPane = forwardRef(function ChatPane(
 
   if (showProfileSetup) {
     return (
-      <div className="flex h-full min-h-0 flex-1 flex-col items-center justify-center p-8">
-        <div className="w-full max-w-4xl">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Welcome to Sahayak</h1>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">
-              Your compassionate AI mental wellness companion for Indian youth
-            </p>
-            <p className="text-sm text-zinc-500 mt-2">
-              Let's set up your cultural profile to provide you with the most relevant support
-            </p>
+      <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-8">
+          <div className="flex items-center justify-center min-h-full">
+            <div className="w-full max-w-4xl">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2">Welcome to Sahayak</h1>
+                <p className="text-lg text-zinc-600 dark:text-zinc-400">
+                  Your compassionate AI mental wellness companion for Indian youth
+                </p>
+                <p className="text-sm text-zinc-500 mt-2">
+                  Let's set up your cultural profile to provide you with the most relevant support
+                </p>
+              </div>
+              <CulturalProfileSetup
+                onProfileComplete={onProfileComplete}
+                onSkip={onProfileSkip}
+                initialProfile={userProfile}
+              />
+            </div>
           </div>
-          <CulturalProfileSetup
-            onProfileComplete={onProfileComplete}
-            onSkip={onProfileSkip}
-            initialProfile={userProfile}
-          />
         </div>
       </div>
     )

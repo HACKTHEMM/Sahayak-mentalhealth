@@ -394,8 +394,8 @@ Is there something specific you'd like to talk about right now?`,
   const selected = conversations.find((c) => c.id === selectedId) || null
 
   return (
-    <div className="h-screen w-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-      <div className="md:hidden sticky top-0 z-40 flex items-center gap-2 border-b border-zinc-200/60 bg-white/80 px-3 py-2 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70">
+    <div className="h-screen w-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 overflow-hidden">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-2 border-b border-zinc-200/60 bg-white/80 px-3 py-2 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70">
         <div className="ml-1 flex items-center gap-2 text-sm font-semibold tracking-tight">
           <span className="inline-flex h-4 w-4 items-center justify-center">✱</span> AI Assistant
         </div>
@@ -413,7 +413,7 @@ Is there something specific you'd like to talk about right now?`,
         </div>
       </div>
 
-      <div className="mx-auto flex h-[calc(100vh-0px)]">
+      <div className="flex h-screen md:h-[calc(100vh-0px)] overflow-hidden pt-14 md:pt-0">
         <Sidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
@@ -445,7 +445,7 @@ Is there something specific you'd like to talk about right now?`,
           crisisDetection={crisisDetection}
         />
 
-        <main className="relative flex min-w-0 flex-1 flex-col">
+        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
           <Header createNewChat={createNewChat} sidebarCollapsed={sidebarCollapsed} setSidebarOpen={setSidebarOpen} />
           <ChatPane
             ref={composerRef}
