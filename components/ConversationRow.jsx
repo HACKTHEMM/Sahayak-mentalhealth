@@ -1,5 +1,5 @@
 import React from "react";
-import { Star } from "lucide-react";
+import { Delete, Star, Trash } from "lucide-react";
 import { cls, timeAgo } from "./utils";
 
 export default function ConversationRow({ data, active, onSelect, onTogglePin, showMeta }) {
@@ -36,14 +36,14 @@ export default function ConversationRow({ data, active, onSelect, onTogglePin, s
             e.stopPropagation();
             onTogglePin();
           }}
-          title={data.pinned ? "Unpin" : "Pin"}
+          title={data.pinned ? "Restore" : "Delete"}
           className="rounded-md p-1 text-glass/60 opacity-0 transition group-hover:opacity-100 glass-hover"
           aria-label={data.pinned ? "Unpin conversation" : "Pin conversation"}
         >
           {data.pinned ? (
-            <Star className="h-4 w-4 fill-glass text-glass" />
+            <Trash className="h-4 w-4 fill-glass text-glass" />
           ) : (
-            <Star className="h-4 w-4" />
+            <Trash className="h-4 w-4" />
           )}
         </button>
       </button>
