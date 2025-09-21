@@ -21,9 +21,8 @@ export default function AIAssistantUI() {
     const saved = typeof window !== "undefined" && localStorage.getItem("theme")
     if (saved) {
       setTheme(saved)
-    } else if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark")
     }
+    // Default to light mode, don't automatically switch to dark based on system preference
   }, [])
 
   useEffect(() => {
@@ -36,18 +35,7 @@ export default function AIAssistantUI() {
     } catch {}
   }, [theme])
 
-  useEffect(() => {
-    try {
-      const media = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)")
-      if (!media) return
-      const listener = (e) => {
-        const saved = localStorage.getItem("theme")
-        if (!saved) setTheme(e.matches ? "dark" : "light")
-      }
-      media.addEventListener("change", listener)
-      return () => media.removeEventListener("change", listener)
-    } catch {}
-  }, [])
+  // Theme effects removed - using light mode as default with manual switching only
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [collapsed, setCollapsed] = useState({ pinned: true, recent: false, folders: true, templates: true })
@@ -583,33 +571,7 @@ Is there something specific you'd like to talk about right now?`,
         />
       ) : (
         <>
-          <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-2 glass border-b border-white/20 dark:border-white/10 px-3 py-2">
-            <div className="ml-1 flex items-center gap-2 text-sm font-semibold tracking-tight text-glass">
-              <span className="inline-flex h-4 w-4 items-center justify-center">✱</span> Sahayak
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <div className="glass-subtle rounded-xl p-1">
-                <GhostIconButton label="Schedule">
-                  <Calendar className="h-4 w-4 text-glass" />
-                </GhostIconButton>
-              </div>
-              <div className="glass-subtle rounded-xl p-1">
-                <GhostIconButton label="Apps">
-                  <LayoutGrid className="h-4 w-4 text-glass" />
-                </GhostIconButton>
-              </div>
-              <div className="glass-subtle rounded-xl p-1">
-                <GhostIconButton label="More">
-                  <MoreHorizontal className="h-4 w-4 text-glass" />
-                </GhostIconButton>
-              </div>
-              <div className="glass-subtle rounded-xl p-1">
-                <ThemeToggle theme={theme} setTheme={setTheme} />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex h-screen md:h-[calc(100vh-0px)] overflow-hidden pt-14 md:pt-0">
+          <div className="flex h-screen md:h-[calc(100vh-0px)] overflow-hidden">
             <Sidebar
               open={sidebarOpen}
               onClose={() => setSidebarOpen(false)}

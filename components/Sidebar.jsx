@@ -13,7 +13,7 @@ import ConversationRow from "./ConversationRow"
 import ThemeToggle from "./ThemeToggle"
 import SearchModal from "./SearchModal"
 import { cls } from "./utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function Sidebar({
   open,
@@ -35,6 +35,18 @@ export default function Sidebar({
   setSidebarCollapsed = () => {},
 }) {
   const [showSearchModal, setShowSearchModal] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkIfMobile()
+    window.addEventListener('resize', checkIfMobile)
+    
+    return () => window.removeEventListener('resize', checkIfMobile)
+  }, [])
 
   if (sidebarCollapsed) {
     return (
@@ -42,7 +54,7 @@ export default function Sidebar({
         initial={{ width: 320 }}
         animate={{ width: 64 }}
         transition={{ type: "spring", stiffness: 260, damping: 28 }}
-        className="z-50 flex h-full shrink-0 flex-col border-r border-zinc-200/60 bg-white dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden"
+        className="hidden md:flex z-50 h-full shrink-0 flex-col border-r border-zinc-200/60 bg-white dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden"
       >
         <div className="flex items-center justify-center border-b border-zinc-200/60 px-3 py-3 dark:border-zinc-800">
           <button
@@ -92,11 +104,11 @@ export default function Sidebar({
       </AnimatePresence>
 
       <AnimatePresence>
-        {(open || typeof window !== "undefined") && (
+        {(open || !isMobile) && (
           <motion.aside
             key="sidebar"
             initial={{ x: -340 }}
-            animate={{ x: open ? 0 : 0 }}
+            animate={{ x: (open || !isMobile) ? 0 : -340 }}
             exit={{ x: -340 }}
             transition={{ type: "spring", stiffness: 260, damping: 28 }}
             className={cls(
@@ -113,18 +125,16 @@ export default function Sidebar({
               </div>
               <div className="ml-auto flex items-center gap-1">
                 <button
-                  onClick={() => setSidebarCollapsed(true)}
-                  className="hidden md:block rounded-xl p-2 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-zinc-800"
+                  onClick={() => {
+                    if (isMobile) {
+                      onClose()
+                    } else {
+                      setSidebarCollapsed(true)
+                    }
+                  }}
+                  className="rounded-xl p-2 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-zinc-800"
                   aria-label="Close sidebar"
                   title="Close sidebar"
-                >
-                  <PanelLeftClose className="h-5 w-5" />
-                </button>
-
-                <button
-                  onClick={onClose}
-                  className="md:hidden rounded-xl p-2 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-zinc-800"
-                  aria-label="Close sidebar"
                 >
                   <PanelLeftClose className="h-5 w-5" />
                 </button>
