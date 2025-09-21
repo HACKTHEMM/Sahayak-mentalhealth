@@ -5,7 +5,7 @@ export const maxDuration = 30
 
 export async function POST(req) {
   try {
-    const { message, context = {} } = await req.json()
+    const { message, context = {}, userProfile = {} } = await req.json()
 
     if (!message || !message.trim()) {
       return Response.json({ error: "Message is required" }, { status: 400 })
@@ -23,6 +23,7 @@ export async function POST(req) {
       ageContext: context.ageContext || "college student",
       conversationHistory: context.conversationHistory || "",
       moodIndicators: context.moodIndicators || "",
+      userProfile: userProfile,
       timestamp: new Date().toISOString(),
     })
 

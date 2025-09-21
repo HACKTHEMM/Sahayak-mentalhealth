@@ -60,11 +60,21 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
 
   async function handleSend() {
     if (!value.trim() || sending) return
+    
+    const messageToSend = value.trim()
+    
+    // Clear input immediately for better UX
+    setValue("")
+    
     setSending(true)
     try {
-      await onSend?.(value)
-      setValue("")
+      await onSend?.(messageToSend)
+      // Input is already cleared above
       inputRef.current?.focus()
+    } catch (error) {
+      // If sending fails, restore the message
+      setValue(messageToSend)
+      console.error('Failed to send message:', error)
     } finally {
       setSending(false)
     }

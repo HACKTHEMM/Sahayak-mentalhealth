@@ -5,6 +5,7 @@ import { Calendar, LayoutGrid, MoreHorizontal } from "lucide-react"
 import Sidebar from "./Sidebar"
 import Header from "./Header"
 import ChatPane from "./ChatPane"
+import LandingPage from "./LandingPage"
 import GhostIconButton from "./GhostIconButton"
 import ThemeToggle from "./ThemeToggle"
 import { useCrisisDetection } from "../hooks/use-crisis-detection"
@@ -91,6 +92,103 @@ export default function AIAssistantUI() {
   const [templates, setTemplates] = useState([])
   const [folders, setFolders] = useState([])
 
+  // Load conversations from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedConversations = localStorage.getItem("conversations")
+      if (savedConversations) {
+        const parsed = JSON.parse(savedConversations)
+        setConversations(parsed)
+        
+        // If there are conversations, select the most recent one
+        if (parsed.length > 0) {
+          const mostRecent = parsed.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
+          setSelectedId(mostRecent.id)
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load conversations from localStorage:", error)
+    }
+  }, [])
+
+  // Save conversations to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem("conversations", JSON.stringify(conversations))
+    } catch (error) {
+      console.error("Failed to save conversations to localStorage:", error)
+    }
+  }, [conversations])
+
+  // Load and save selectedId
+  useEffect(() => {
+    try {
+      const savedSelectedId = localStorage.getItem("selectedConversationId")
+      if (savedSelectedId && conversations.length > 0) {
+        // Only set if the conversation still exists
+        const exists = conversations.find(c => c.id === savedSelectedId)
+        if (exists) {
+          setSelectedId(savedSelectedId)
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load selected conversation ID:", error)
+    }
+  }, [conversations])
+
+  useEffect(() => {
+    try {
+      if (selectedId) {
+        localStorage.setItem("selectedConversationId", selectedId)
+      } else {
+        localStorage.removeItem("selectedConversationId")
+      }
+    } catch (error) {
+      console.error("Failed to save selected conversation ID:", error)
+    }
+  }, [selectedId])
+
+  // Load folders and templates from localStorage
+  useEffect(() => {
+    try {
+      const savedFolders = localStorage.getItem("folders")
+      if (savedFolders) {
+        setFolders(JSON.parse(savedFolders))
+      } else {
+        // Set default folders if none exist
+        const defaultFolders = [
+          { id: "work", name: "Work Projects", createdAt: new Date().toISOString() },
+          { id: "personal", name: "Personal", createdAt: new Date().toISOString() }
+        ]
+        setFolders(defaultFolders)
+      }
+
+      const savedTemplates = localStorage.getItem("templates")
+      if (savedTemplates) {
+        setTemplates(JSON.parse(savedTemplates))
+      }
+    } catch (error) {
+      console.error("Failed to load folders/templates from localStorage:", error)
+    }
+  }, [])
+
+  // Save folders and templates to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem("folders", JSON.stringify(folders))
+    } catch (error) {
+      console.error("Failed to save folders to localStorage:", error)
+    }
+  }, [folders])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("templates", JSON.stringify(templates))
+    } catch (error) {
+      console.error("Failed to save templates to localStorage:", error)
+    }
+  }, [templates])
+
   const [query, setQuery] = useState("")
   const searchRef = useRef(null)
 
@@ -160,6 +258,29 @@ export default function AIAssistantUI() {
       createdAt: new Date().toISOString(),
     }
     setFolders((prev) => [...prev, newFolder])
+  }
+
+  function clearAllConversations() {
+    try {
+      setConversations([])
+      setSelectedId(null)
+      localStorage.removeItem("conversations")
+      localStorage.removeItem("selectedConversationId")
+    } catch (error) {
+      console.error("Failed to clear conversations:", error)
+    }
+  }
+
+  function deleteConversation(id) {
+    try {
+      setConversations((prev) => prev.filter(c => c.id !== id))
+      if (selectedId === id) {
+        const remaining = conversations.filter(c => c.id !== id)
+        setSelectedId(remaining.length > 0 ? remaining[0].id : null)
+      }
+    } catch (error) {
+      console.error("Failed to delete conversation:", error)
+    }
   }
 
   function createNewChat() {
@@ -256,6 +377,7 @@ export default function AIAssistantUI() {
               .map((m) => m.mood)
               .join(", "),
           },
+          userProfile: userProfile,
         }),
       })
 
@@ -433,82 +555,108 @@ Is there something specific you'd like to talk about right now?`,
     resources.trackResourceAccess(resource, category)
   }
 
+  // Development utility - expose clearAllConversations to window for testing
+  useEffect(() => {
+    if (typeof window !== "undefined" && process.env.NODE_ENV === 'development') {
+      window.clearAllConversations = clearAllConversations
+      window.clearAllData = () => {
+        localStorage.clear()
+        window.location.reload()
+      }
+    }
+  }, [])
+
   const selected = conversations.find((c) => c.id === selectedId) || null
+
+  // Show landing page if there are no conversations
+  const showLandingPage = conversations.length === 0
 
   return (
     <div className="h-screen w-full bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 overflow-hidden">
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-2 border-b border-zinc-200/60 bg-white/80 px-3 py-2 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70">
-        <div className="ml-1 flex items-center gap-2 text-sm font-semibold tracking-tight">
-          <span className="inline-flex h-4 w-4 items-center justify-center">✱</span> Sahayak
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <GhostIconButton label="Schedule">
-            <Calendar className="h-4 w-4" />
-          </GhostIconButton>
-          <GhostIconButton label="Apps">
-            <LayoutGrid className="h-4 w-4" />
-          </GhostIconButton>
-          <GhostIconButton label="More">
-            <MoreHorizontal className="h-4 w-4" />
-          </GhostIconButton>
-          <ThemeToggle theme={theme} setTheme={setTheme} />
-        </div>
-      </div>
-
-      <div className="flex h-screen md:h-[calc(100vh-0px)] overflow-hidden pt-14 md:pt-0">
-        <Sidebar
-          open={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          theme={theme}
-          setTheme={setTheme}
-          collapsed={collapsed}
-          setCollapsed={setCollapsed}
-          sidebarCollapsed={sidebarCollapsed}
-          setSidebarCollapsed={setSidebarCollapsed}
-          conversations={conversations}
-          pinned={pinned}
-          recent={recent}
-          folders={folders}
-          folderCounts={folderCounts}
-          selectedId={selectedId}
-          onSelect={(id) => setSelectedId(id)}
-          togglePin={togglePin}
-          query={query}
-          setQuery={setQuery}
-          searchRef={searchRef}
-          createFolder={createFolder}
-          createNewChat={createNewChat}
-          templates={templates}
-          setTemplates={setTemplates}
-          onUseTemplate={handleUseTemplate}
+      {showLandingPage ? (
+        <LandingPage 
+          onGetStarted={createNewChat}
           userProfile={userProfile}
           onShowProfileSetup={() => setShowProfileSetup(true)}
-          moodTracking={moodTracking}
-          crisisDetection={crisisDetection}
+          theme={theme}
+          setTheme={setTheme}
         />
+      ) : (
+        <>
+          <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center gap-2 border-b border-zinc-200/60 bg-white/80 px-3 py-2 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70">
+            <div className="ml-1 flex items-center gap-2 text-sm font-semibold tracking-tight">
+              <span className="inline-flex h-4 w-4 items-center justify-center">✱</span> Sahayak
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+              <GhostIconButton label="Schedule">
+                <Calendar className="h-4 w-4" />
+              </GhostIconButton>
+              <GhostIconButton label="Apps">
+                <LayoutGrid className="h-4 w-4" />
+              </GhostIconButton>
+              <GhostIconButton label="More">
+                <MoreHorizontal className="h-4 w-4" />
+              </GhostIconButton>
+              <ThemeToggle theme={theme} setTheme={setTheme} />
+            </div>
+          </div>
 
-        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-          <Header createNewChat={createNewChat} sidebarCollapsed={sidebarCollapsed} setSidebarOpen={setSidebarOpen} />
-          <ChatPane
-            ref={composerRef}
-            conversation={selected}
-            onSend={(content) => selected && sendMessage(selected.id, content)}
-            onEditMessage={(messageId, newContent) => selected && editMessage(selected.id, messageId, newContent)}
-            onResendMessage={(messageId) => selected && resendMessage(selected.id, messageId)}
-            isThinking={isThinking && thinkingConvId === selected?.id}
-            onPauseThinking={pauseThinking}
-            userProfile={userProfile}
-            showProfileSetup={showProfileSetup}
-            onProfileComplete={handleProfileComplete}
-            onProfileSkip={handleProfileSkip}
-            moodTracking={moodTracking}
-            onMoodSubmit={handleMoodSubmit}
-            onCheckInComplete={handleCheckInComplete}
-            crisisDetection={crisisDetection}
-            onResourceClick={handleResourceClick}
-          />
-        </main>
-      </div>
+          <div className="flex h-screen md:h-[calc(100vh-0px)] overflow-hidden pt-14 md:pt-0">
+            <Sidebar
+              open={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+              theme={theme}
+              setTheme={setTheme}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              sidebarCollapsed={sidebarCollapsed}
+              setSidebarCollapsed={setSidebarCollapsed}
+              conversations={conversations}
+              pinned={pinned}
+              recent={recent}
+              folders={folders}
+              folderCounts={folderCounts}
+              selectedId={selectedId}
+              onSelect={(id) => setSelectedId(id)}
+              togglePin={togglePin}
+              query={query}
+              setQuery={setQuery}
+              searchRef={searchRef}
+              createFolder={createFolder}
+              createNewChat={createNewChat}
+              templates={templates}
+              setTemplates={setTemplates}
+              onUseTemplate={handleUseTemplate}
+              userProfile={userProfile}
+              onShowProfileSetup={() => setShowProfileSetup(true)}
+              moodTracking={moodTracking}
+              crisisDetection={crisisDetection}
+            />
+
+            <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+              <Header createNewChat={createNewChat} sidebarCollapsed={sidebarCollapsed} setSidebarOpen={setSidebarOpen} />
+              <ChatPane
+                ref={composerRef}
+                conversation={selected}
+                onSend={(content) => selected && sendMessage(selected.id, content)}
+                onEditMessage={(messageId, newContent) => selected && editMessage(selected.id, messageId, newContent)}
+                onResendMessage={(messageId) => selected && resendMessage(selected.id, messageId)}
+                isThinking={isThinking && thinkingConvId === selected?.id}
+                onPauseThinking={pauseThinking}
+                userProfile={userProfile}
+                showProfileSetup={showProfileSetup}
+                onProfileComplete={handleProfileComplete}
+                onProfileSkip={handleProfileSkip}
+                moodTracking={moodTracking}
+                onMoodSubmit={handleMoodSubmit}
+                onCheckInComplete={handleCheckInComplete}
+                crisisDetection={crisisDetection}
+                onResourceClick={handleResourceClick}
+              />
+            </main>
+          </div>
+        </>
+      )}
     </div>
   )
 }
