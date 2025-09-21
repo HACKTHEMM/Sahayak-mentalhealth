@@ -413,7 +413,7 @@ Is there something specific you'd like to talk about right now?`,
         </div>
       </div>
 
-      <div className="mx-auto flex h-[calc(100vh-0px)] max-w-[1400px]">
+      <div className="mx-auto flex h-[calc(100vh-0px)]">
         <Sidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
