@@ -146,7 +146,7 @@ export default function Sidebar({
                   placeholder="Search…"
                   onClick={() => setShowSearchModal(true)}
                   onFocus={() => setShowSearchModal(true)}
-                  className="w-full rounded-full border border-zinc-200 bg-white py-2 pl-9 pr-3 text-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950/50"
+                  className="w-full rounded-full border border-zinc-200 bg-white py-2 pl-9 pr-3 text-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-zinc-800 dark:bg-zinc-950/50 max-w-full"
                 />
               </div>
             </div>
@@ -154,14 +154,14 @@ export default function Sidebar({
             <div className="px-3 pt-3">
               <button
                 onClick={createNewChat}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-white dark:text-zinc-900"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-white dark:text-zinc-900 min-w-0 overflow-hidden"
                 title="New Chat (⌘N)"
               >
                 <Plus className="h-4 w-4" /> Start New Chat
               </button>
             </div>
 
-            <nav className="mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-700 px-2 pb-4">
+            <nav className="mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-700 px-2 pb-4">
               <SidebarSection
                 icon={<Clock className="h-4 w-4" />}
                 title="RECENT"
@@ -191,7 +191,7 @@ export default function Sidebar({
               <div className="flex items-center justify-end">
                 <ThemeToggle theme={theme} setTheme={setTheme} />
               </div>
-              <div className="mt-2 flex items-center gap-2 rounded-xl bg-zinc-50 p-2 dark:bg-zinc-800/60">
+              <div className="mt-2 flex items-center gap-2 rounded-xl bg-zinc-50 p-2 dark:bg-zinc-800/60 min-w-0 overflow-hidden">
                 <div className="grid h-8 w-8 place-items-center rounded-full bg-zinc-900 text-xs font-bold text-white dark:bg-white dark:text-zinc-900">
                   JD
                 </div>

@@ -190,6 +190,30 @@ export default function AIAssistantUI() {
     const now = new Date().toISOString()
     const userMsg = { id: Math.random().toString(36).slice(2), role: "user", content, createdAt: now }
 
+    // Generate a short title from the first message if it's a new chat
+    const conversation = conversations.find((c) => c.id === convId)
+    let newTitle = conversation?.title
+    if (conversation?.title === "New Chat" && content.trim()) {
+      // Create a concise title from the first few words, max 10 characters
+      const words = content.trim().split(/\s+/).slice(0, 3)
+      let titleWords = []
+      let charCount = 0
+      
+      for (const word of words) {
+        if (charCount + word.length <= 10) {
+          titleWords.push(word)
+          charCount += word.length
+        } else {
+          break
+        }
+      }
+      
+      newTitle = titleWords.length > 0 ? titleWords.join(" ") : content.slice(0, 10)
+      if (newTitle.length >= 10 && content.length > 10) {
+        newTitle = newTitle.slice(0, 7) + "..."
+      }
+    }
+
     // Update conversation with user message
     setConversations((prev) =>
       prev.map((c) => {
@@ -197,6 +221,7 @@ export default function AIAssistantUI() {
         const msgs = [...(c.messages || []), userMsg]
         return {
           ...c,
+          title: newTitle || c.title,
           messages: msgs,
           updatedAt: now,
           messageCount: msgs.length,

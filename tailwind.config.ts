@@ -93,6 +93,32 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    // Add scrollbar utilities
+    function({ addUtilities }: any) {
+      const newUtilities = {
+        '.no-scrollbar': {
+          'scrollbar-width': 'none',
+          '-ms-overflow-style': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+        '.scrollbar-hidden': {
+          'scrollbar-width': 'none',
+          '-ms-overflow-style': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+      }
+      addUtilities(newUtilities)
+    },
+  ],
+  // Add custom utilities for hiding scrollbars
+  corePlugins: {
+    // You can disable core plugins if needed
+  },
 }
 export default config

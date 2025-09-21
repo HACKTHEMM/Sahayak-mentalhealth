@@ -9,7 +9,7 @@ export default function ConversationRow({ data, active, onSelect, onTogglePin, s
       <button
         onClick={onSelect}
         className={cls(
-          "-mx-1 flex w-[calc(100%+8px)] items-center gap-2 rounded-lg px-2 py-2 text-left",
+          "-mx-1 flex w-[calc(100%+8px)] items-center gap-2 rounded-lg px-2 py-2 text-left overflow-hidden",
           active
             ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800/60 dark:text-zinc-100"
             : "hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -18,7 +18,9 @@ export default function ConversationRow({ data, active, onSelect, onTogglePin, s
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate text-sm font-medium tracking-tight">{data.title}</span>
+            <span className="truncate text-sm font-medium tracking-tight">
+              {data.title.length > 10 ? `${data.title.slice(0, 10)}...` : data.title}
+            </span>
             <span className="shrink-0 text-[11px] text-zinc-500 dark:text-zinc-400">
               {timeAgo(data.updatedAt)}
             </span>

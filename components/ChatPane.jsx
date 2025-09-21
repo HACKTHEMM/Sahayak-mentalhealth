@@ -127,7 +127,12 @@ const ChatPane = forwardRef(function ChatPane(
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
-      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8">
+
+      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8" style={{
+        maxWidth: '800px',
+        marginLeft: 'auto',
+        marginRight: 'auto'
+      }}>
         <div className="mb-2 text-3xl font-serif tracking-tight sm:text-4xl md:text-5xl">
           <span className="block leading-[1.05] font-sans text-2xl">
             {conversation.title === "New Chat" ? "Chat with Sahayak" : conversation.title}
