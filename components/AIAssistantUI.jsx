@@ -735,10 +735,15 @@ Is there something specific you'd like to talk about right now?`,
       try {
         await createOrUpdateUserProfile({
           clerk_user_id: userId,
-          culture: profile.culture || null,
+          state: profile.state || null,
+          city: profile.city || null,
           region: profile.region || null,
-          language: profile.language || null,
           life_stage: profile.lifeStage || null,
+          family_dynamics: profile.familyDynamics || null,
+          religious_background: profile.religiousBackground || null,
+          languages: profile.languages || ["english"],
+          primary_stressors: profile.primaryStressors || [],
+          cultural_preferences: profile.culturalPreferences || {},
           preferences: profile.preferences || {}
         })
       } catch (error) {

@@ -23,6 +23,15 @@ CREATE TABLE user_profiles (
   family_structure TEXT,
   preferences JSONB DEFAULT '{}'::jsonb,
 
+  -- Enhanced location & cultural data
+  state TEXT,
+  city TEXT,
+  cultural_preferences JSONB DEFAULT '{"music": [], "rituals": [], "traditions": []}'::jsonb,
+  region TEXT, -- north, south, east, west, northeast
+  primary_stressors JSONB DEFAULT '[]'::jsonb,
+  family_dynamics TEXT, -- traditional, modern, mixed, independent
+  languages JSONB DEFAULT '["english"]'::jsonb, -- Array of languages user speaks
+
   -- Settings
   theme TEXT DEFAULT 'light',
   notifications_enabled BOOLEAN DEFAULT true,

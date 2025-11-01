@@ -10,22 +10,42 @@ import { cls } from "./utils"
 import { REGIONAL_ADAPTATIONS, LIFE_STAGE_ADAPTATIONS, CULTURAL_CONTEXTS } from "../lib/cultural-adaptation"
 
 const STEPS = [
+  { id: "location", title: "Your Location", description: "Help us connect you with local support" },
   { id: "region", title: "Your Region", description: "Help us understand your cultural context" },
   { id: "lifeStage", title: "Life Stage", description: "Where are you in your journey?" },
   { id: "concerns", title: "Main Concerns", description: "What areas would you like support with?" },
   { id: "family", title: "Family Dynamics", description: "Your family environment" },
   { id: "languages", title: "Languages", description: "Languages you're comfortable with" },
+  { id: "cultural", title: "Cultural Preferences", description: "What resonates with you?" },
+]
+
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
+  "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
+  "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh",
+  "Uttarakhand", "West Bengal", "Delhi", "Chandigarh", "Puducherry"
 ]
 
 export default function CulturalProfileSetup({ onProfileComplete, onSkip, initialProfile = {} }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [profile, setProfile] = useState({
+    state: initialProfile.state || "",
+    city: initialProfile.city || "",
     region: initialProfile.region || "",
     lifeStage: initialProfile.lifeStage || "",
     primaryStressors: initialProfile.primaryStressors || [],
     familyDynamics: initialProfile.familyDynamics || "",
     languages: initialProfile.languages || [],
     religiousBackground: initialProfile.religiousBackground || "",
+    culturalPreferences: initialProfile.culturalPreferences || {
+      music: false,
+      yoga: false,
+      meditation: false,
+      spirituality: false,
+      festivals: false,
+      traditionalHealing: false,
+    },
     ...initialProfile,
   })
 
@@ -52,11 +72,13 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
 
   const canProceed = () => {
     const step = STEPS[currentStep]
+    if (step.id === "location") return profile.state
     if (step.id === "region") return profile.region
     if (step.id === "lifeStage") return profile.lifeStage
     if (step.id === "concerns") return profile.primaryStressors.length > 0
     if (step.id === "family") return profile.familyDynamics
     if (step.id === "languages") return profile.languages.length > 0
+    if (step.id === "cultural") return true // Optional step
     return false
   }
 
@@ -64,6 +86,38 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
 
   const renderStepContent = () => {
     switch (currentStepData.id) {
+      case "location":
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label className="mb-2 block">State *</Label>
+              <select
+                value={profile.state}
+                onChange={(e) => updateProfile("state", e.target.value)}
+                className="w-full border rounded-sm p-2 bg-background"
+              >
+                <option value="">Select your state</option>
+                {INDIAN_STATES.map((state) => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label className="mb-2 block">City (Optional)</Label>
+              <input
+                type="text"
+                value={profile.city}
+                onChange={(e) => updateProfile("city", e.target.value)}
+                placeholder="e.g., Mumbai, Bangalore, Delhi"
+                className="w-full border rounded-sm p-2 bg-background"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Helps us suggest local support resources and helplines
+              </p>
+            </div>
+          </div>
+        )
+
       case "region":
         return (
           <RadioGroup value={profile.region} onValueChange={(val) => updateProfile("region", val)}>
@@ -192,6 +246,48 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
                 <span className="font-medium">{language}</span>
               </Label>
             ))}
+          </div>
+        )
+
+      case "cultural":
+        return (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground mb-4">
+              Select cultural practices and traditions that resonate with you. This helps us personalize wellness recommendations.
+            </p>
+            <div className="space-y-2">
+              {[
+                { key: "music", label: "Indian Classical Music", desc: "Ragas, Carnatic, Hindustani" },
+                { key: "yoga", label: "Yoga & Asanas", desc: "Physical and mental wellness through yoga" },
+                { key: "meditation", label: "Meditation & Mindfulness", desc: "Dhyana, Vipassana, guided meditation" },
+                { key: "spirituality", label: "Spiritual Practices", desc: "Prayer, temple visits, religious rituals" },
+                { key: "festivals", label: "Festival Celebrations", desc: "Cultural and religious festivals" },
+                { key: "traditionalHealing", label: "Traditional Healing", desc: "Ayurveda, naturopathy, traditional medicine" },
+              ].map((option) => (
+                <Label
+                  key={option.key}
+                  className={cls(
+                    "flex items-start gap-3 border rounded-sm p-4 cursor-pointer transition-colors hover:border-primary",
+                    profile.culturalPreferences[option.key] && "border-primary bg-accent/50"
+                  )}
+                >
+                  <Checkbox
+                    checked={profile.culturalPreferences[option.key]}
+                    onCheckedChange={(checked) => {
+                      updateProfile("culturalPreferences", {
+                        ...profile.culturalPreferences,
+                        [option.key]: checked,
+                      })
+                    }}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium mb-1">{option.label}</div>
+                    <div className="text-sm text-muted-foreground">{option.desc}</div>
+                  </div>
+                </Label>
+              ))}
+            </div>
           </div>
         )
     }
