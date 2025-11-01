@@ -1,10 +1,55 @@
+"use client"
+
 import { cls } from "./utils"
-import { Paperclip, Image, FileText, Mic, Video } from "lucide-react"
+import { Paperclip, Image, FileText, Mic, Video, Volume2, VolumeX, Loader2 } from "lucide-react"
+import { useTextToSpeech } from "../hooks/use-text-to-speech"
+import { useEffect, useState } from "react"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
-export default function Message({ role, children, attachments, content }) {
+export default function Message({ role, children, attachments, content, enableTTS = true }) {
   const isUser = role === "user"
+  const [hasPlayed, setHasPlayed] = useState(false)
+  
+  // TTS hook - only for assistant messages
+  const { speak, stop, isPlaying, isLoading, toggle } = useTextToSpeech({ 
+    autoPlay: false // We'll manually trigger based on message appearance
+  })
+
+  // Extract plain text from markdown content for TTS
+  const getPlainText = (markdownText) => {
+    if (!markdownText) return ''
+    // Simple markdown stripper (you could use a library for better results)
+    return markdownText
+      .replace(/[#*`_~\[\]()]/g, '') // Remove markdown symbols
+      .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
+      .replace(/\[.*?\]\(.*?\)/g, '') // Remove links
+      .trim()
+  }
+
+  // Auto-play TTS when assistant message appears
+  useEffect(() => {
+    if (!isUser && enableTTS && content && !hasPlayed) {
+      const plainText = getPlainText(content)
+      if (plainText.trim()) {
+        // Small delay to make it feel natural
+        const timer = setTimeout(() => {
+          speak(plainText)
+          setHasPlayed(true)
+        }, 500)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [content, isUser, enableTTS, hasPlayed, speak])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (!isUser) {
+        stop()
+      }
+    }
+  }, [isUser, stop])
 
   const getAttachmentIcon = (type) => {
     if (type === 'image') return <Image className="h-3 w-3" />
@@ -23,12 +68,36 @@ export default function Message({ role, children, attachments, content }) {
       )}
       <div
         className={cls(
-          "max-w-[70%] rounded-[20px] px-4 py-3 text-[15px] leading-relaxed",
+          "max-w-[70%] rounded-[20px] px-4 py-3 text-[15px] leading-relaxed relative group",
           isUser
             ? "!bg-[#333333] dark:!bg-[#262626] !text-white shadow-md"
             : "bg-card/80 backdrop-blur-sm text-foreground border border-border/50 shadow-sm",
         )}
       >
+        {/* TTS Control Button - only for assistant messages */}
+        {!isUser && enableTTS && content && (
+          <button
+            onClick={toggle}
+            disabled={isLoading}
+            className={cls(
+              "absolute top-2 right-2 p-1.5 rounded-full transition-all",
+              "opacity-0 group-hover:opacity-100",
+              "hover:bg-black/5 dark:hover:bg-white/5",
+              isPlaying && "opacity-100 bg-blue-500/10 text-blue-500",
+              isLoading && "opacity-50 cursor-not-allowed"
+            )}
+            title={isPlaying ? "Stop speaking" : "Read aloud"}
+          >
+            {isLoading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : isPlaying ? (
+              <VolumeX className="h-3.5 w-3.5" />
+            ) : (
+              <Volume2 className="h-3.5 w-3.5" />
+            )}
+          </button>
+        )}
+        
         {/* Attachment indicators */}
         {attachments && attachments.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-2 pb-2 border-b border-white/10">

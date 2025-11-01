@@ -1,8 +1,9 @@
 "use client"
 
 import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from "react"
-import { Send, Loader2, Plus, Mic, Image, FileText, X, Video, Volume2 } from "lucide-react"
+import { Send, Loader2, Plus, Mic, Image, FileText, X, Video, Volume2, MicOff } from "lucide-react"
 import ComposerActionsPopover from "./ComposerActionsPopover"
+import { useSpeechToText } from "../hooks/use-speech-to-text"
 import { cls } from "./utils"
 
 const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
@@ -11,10 +12,30 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
   const [isFocused, setIsFocused] = useState(false)
   const [lineCount, setLineCount] = useState(1)
   const [attachedFiles, setAttachedFiles] = useState([])
-  const [isRecording, setIsRecording] = useState(false)
   const inputRef = useRef(null)
   const fileInputRef = useRef(null)
-  const mediaRecorderRef = useRef(null)
+  
+  // Speech-to-Text integration
+  const {
+    isRecording: isSttRecording,
+    isProcessing: isSttProcessing,
+    error: sttError,
+    startRecording: startStt,
+    stopRecording: stopStt
+  } = useSpeechToText({
+    onTranscript: (transcript) => {
+      // Auto-write recognized text into input
+      setValue(transcript)
+      inputRef.current?.focus()
+    },
+    onAutoSend: async (transcript) => {
+      // Auto-send after silence detected
+      if (transcript.trim()) {
+        await handleSend()
+      }
+    },
+    silenceThreshold: 1500 // 1.5 seconds of silence
+  })
 
   useEffect(() => {
     if (inputRef.current) {
@@ -88,6 +109,16 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
     })
   }
 
+  // Handle voice input toggle
+  const handleVoiceInput = () => {
+    if (isSttRecording) {
+      stopStt() // Manual stop without auto-send
+    } else {
+      startStt()
+    }
+  }
+
+  // Legacy recording for file attachment (kept for compatibility)
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -103,23 +134,14 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
         stream.getTracks().forEach(track => track.stop())
       }
 
-      mediaRecorderRef.current = mediaRecorder
       mediaRecorder.start()
-      setIsRecording(true)
     } catch (error) {
       console.error('Failed to start recording:', error)
     }
   }
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop()
-      setIsRecording(false)
-    }
-  }
-
   async function handleSend() {
-    if ((!value.trim() && attachedFiles.length === 0) || sending) return
+    if ((!value.trim() && attachedFiles.length === 0) || sending || isSttProcessing) return
 
     const messageToSend = value.trim()
     const filesToSend = [...attachedFiles]
@@ -144,9 +166,31 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
   }
 
   const hasContent = value.length > 0
+  const isVoiceActive = isSttRecording || isSttProcessing
 
   return (
     <div className="relative">
+      {/* Recording indicator */}
+      {isVoiceActive && (
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center p-2 bg-gradient-to-b from-red-500/10 to-transparent">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/20 backdrop-blur-sm border border-red-500/30">
+            <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-sm font-medium text-red-600 dark:text-red-400">
+              {isSttRecording ? "Listening..." : "Processing..."}
+            </span>
+          </div>
+        </div>
+      )}
+      
+      {/* STT Error Display */}
+      {sttError && (
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center p-2">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/20 backdrop-blur-sm border border-red-500/30">
+            <span className="text-sm text-red-600 dark:text-red-400">{sttError}</span>
+          </div>
+        </div>
+      )}
+      
       {/* Seamless gradient overlay that blends with glass-bg */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -285,26 +329,34 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
               )}
             </button>
             <button
-              onClick={isRecording ? stopRecording : startRecording}
+              onClick={handleVoiceInput}
+              disabled={isSttProcessing}
               className={cls(
-                "inline-flex items-center justify-center rounded-full p-2 opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 transition-all",
-                isRecording && "text-red-500 animate-pulse opacity-100"
+                "inline-flex items-center justify-center rounded-full p-2 transition-all",
+                isVoiceActive
+                  ? "text-red-500 bg-red-500/10 opacity-100 scale-110"
+                  : "opacity-60 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5",
+                isSttProcessing && "cursor-not-allowed opacity-40"
               )}
-              title={isRecording ? "Stop recording" : "Record voice message"}
+              title={isSttRecording ? "Stop recording (or wait for auto-send)" : "Start voice input"}
             >
-              <Mic className="h-4 w-4" />
+              {isSttRecording ? (
+                <MicOff className="h-4 w-4 animate-pulse" />
+              ) : (
+                <Mic className="h-4 w-4" />
+              )}
             </button>
           </div>
 
           <button
             onClick={handleSend}
-            disabled={sending || busy || (!value.trim() && attachedFiles.length === 0)}
+            disabled={sending || busy || isSttProcessing || (!value.trim() && attachedFiles.length === 0)}
             className={cls(
               "inline-flex shrink-0 items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium shadow-sm transition-all hover:opacity-90",
-              (sending || busy || (!value.trim() && attachedFiles.length === 0)) && "opacity-50 cursor-not-allowed",
+              (sending || busy || isSttProcessing || (!value.trim() && attachedFiles.length === 0)) && "opacity-50 cursor-not-allowed",
             )}
           >
-            {sending || busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {sending || busy || isSttProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </button>
           </div>
         </div>
