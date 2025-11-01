@@ -121,6 +121,7 @@ const config: Config = {
   },
   plugins: [
     require('tailwindcss-animate'),
+    require('@tailwindcss/typography'),
     // Add scrollbar utilities
     function({ addUtilities }: any) {
       const newUtilities = {

@@ -13,8 +13,24 @@ import { useMoodTracking } from "../hooks/use-mood-tracking"
 import { useResources } from "../hooks/use-resources"
 import culturalAdaptationEngine from "../lib/cultural-adaptation"
 import crisisEscalationManager from "../lib/crisis-escalation"
+import {
+  getUserConversations,
+  createConversation,
+  updateConversation,
+  deleteConversation,
+  addMessage,
+  updateMessage,
+  getConversationMessages,
+  createOrUpdateUserProfile,
+  createFolder,
+  getUserFolders,
+  createTemplate,
+  getUserTemplates,
+  createMoodEntry,
+  createCrisisLog
+} from "../lib/db-helpers"
 
-export default function AIAssistantUI() {
+export default function AIAssistantUI({ userProfile: initialUserProfile, userId }) {
   const [theme, setTheme] = useState("light")
 
   useEffect(() => {
@@ -80,33 +96,83 @@ export default function AIAssistantUI() {
   const [templates, setTemplates] = useState([])
   const [folders, setFolders] = useState([])
 
-  // Load conversations from localStorage on mount
+  // Load conversations from Supabase on mount
   useEffect(() => {
-    try {
-      const savedConversations = localStorage.getItem("conversations")
-      if (savedConversations) {
-        const parsed = JSON.parse(savedConversations)
-        setConversations(parsed)
-        
-        // If there are conversations, select the most recent one
-        if (parsed.length > 0) {
-          const mostRecent = parsed.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
-          setSelectedId(mostRecent.id)
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load conversations from localStorage:", error)
-    }
-  }, [])
+    async function loadConversations() {
+      if (!userId) return
 
-  // Save conversations to localStorage whenever they change
-  useEffect(() => {
-    try {
-      localStorage.setItem("conversations", JSON.stringify(conversations))
-    } catch (error) {
-      console.error("Failed to save conversations to localStorage:", error)
+      try {
+        const supabaseConvos = await getUserConversations(userId)
+        if (supabaseConvos && supabaseConvos.length > 0) {
+          // Transform Supabase format to app format
+          const transformed = supabaseConvos.map(c => ({
+            id: c.id,
+            title: c.title,
+            preview: c.preview || '',
+            pinned: c.pinned,
+            messageCount: c.message_count,
+            folder: 'General', // You can map this properly later
+            updatedAt: c.updated_at,
+            messages: [], // Messages loaded separately
+            mentalWellnessData: {
+              crisisLevel: c.crisis_level || 'LOW',
+              sessionId: c.session_id,
+              moodEntries: [],
+              culturalContext: initialUserProfile || {}
+            }
+          }))
+          setConversations(transformed)
+
+          // Select most recent
+          if (transformed.length > 0) {
+            const mostRecent = transformed.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0]
+            setSelectedId(mostRecent.id)
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load conversations from Supabase:", error)
+      }
     }
-  }, [conversations])
+
+    loadConversations()
+  }, [userId])
+
+  // Load messages when conversation is selected
+  useEffect(() => {
+    async function loadMessages() {
+      if (!selectedId) return
+
+      try {
+        const messages = await getConversationMessages(selectedId)
+
+        // Transform Supabase format to app format
+        const transformedMessages = messages.map(m => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          createdAt: m.created_at,
+          mentalWellnessData: {
+            crisisLevel: m.crisis_level,
+            followUpNeeded: m.follow_up_needed,
+            culturallyAdapted: m.culturally_adapted
+          }
+        }))
+
+        // Update the selected conversation with messages
+        setConversations(prev =>
+          prev.map(c =>
+            c.id === selectedId
+              ? { ...c, messages: transformedMessages }
+              : c
+          )
+        )
+      } catch (error) {
+        console.error('Failed to load messages:', error)
+      }
+    }
+
+    loadMessages()
+  }, [selectedId])
 
   // Load and save selectedId
   useEffect(() => {
@@ -183,38 +249,63 @@ export default function AIAssistantUI() {
   const [isThinking, setIsThinking] = useState(false)
   const [thinkingConvId, setThinkingConvId] = useState(null)
 
-  const [userProfile, setUserProfile] = useState({})
+  const [userProfile, setUserProfile] = useState(initialUserProfile || {})
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("user-cultural-profile")
-      if (saved) {
-        setUserProfile(JSON.parse(saved))
-      }
-    } catch {
-      // Keep default value
+    // Load from Supabase profile if available
+    if (initialUserProfile && Object.keys(initialUserProfile).length > 0) {
+      setUserProfile({
+        culture: initialUserProfile.culture,
+        language: initialUserProfile.language,
+        lifeStage: initialUserProfile.life_stage,
+        communicationStyle: initialUserProfile.communication_style,
+        religiousBackground: initialUserProfile.religious_background,
+        familyStructure: initialUserProfile.family_structure,
+        preferences: initialUserProfile.preferences || {}
+      })
     }
-  }, [])
+  }, [initialUserProfile])
 
   const [showProfileSetup, setShowProfileSetup] = useState(false)
+  const [profileCompleted, setProfileCompleted] = useState(false)
 
   useEffect(() => {
-    setShowProfileSetup(Object.keys(userProfile).length === 0)
-  }, [userProfile])
+    // Only show profile setup if:
+    // 1. Profile hasn't been completed in this session
+    // 2. No initial profile exists OR it's missing culture field
+    if (!profileCompleted) {
+      setShowProfileSetup(!initialUserProfile || Object.keys(initialUserProfile).length === 0 || !initialUserProfile.culture)
+    }
+  }, [initialUserProfile, profileCompleted])
 
   // Mental wellness hooks
   const crisisDetection = useCrisisDetection()
   const moodTracking = useMoodTracking()
   const resources = useResources()
 
-  // Save user profile to localStorage
+  // Save user profile to Supabase when updated
   useEffect(() => {
-    try {
-      localStorage.setItem("user-cultural-profile", JSON.stringify(userProfile))
-    } catch (error) {
-      console.error("Failed to save user profile:", error)
+    async function saveProfile() {
+      if (!userId || !userProfile || Object.keys(userProfile).length === 0) return
+
+      try {
+        await createOrUpdateUserProfile({
+          clerk_user_id: userId,
+          culture: userProfile.culture,
+          language: userProfile.language,
+          life_stage: userProfile.lifeStage,
+          communication_style: userProfile.communicationStyle,
+          religious_background: userProfile.religiousBackground,
+          family_structure: userProfile.familyStructure,
+          preferences: userProfile.preferences || {}
+        })
+      } catch (error) {
+        console.error("Failed to save user profile to Supabase:", error)
+      }
     }
-  }, [userProfile])
+
+    saveProfile()
+  }, [userProfile, userId])
 
   const filtered = useMemo(() => {
     if (!query.trim()) return conversations
@@ -235,8 +326,49 @@ export default function AIAssistantUI() {
     return map
   }, [conversations, folders])
 
-  function togglePin(id) {
-    setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, pinned: !c.pinned } : c)))
+  async function togglePin(id) {
+    const conversation = conversations.find(c => c.id === id)
+    if (!conversation) {
+      console.warn('⚠️ togglePin: Conversation not found:', id)
+      return
+    }
+
+    console.log('🔄 togglePin called:', {
+      id,
+      currentlyPinned: conversation.pinned,
+      action: conversation.pinned ? 'restore' : 'delete'
+    })
+
+    // If currently pinned (in trash), restore it
+    // If not pinned, move to trash (delete from DB)
+    if (!conversation.pinned) {
+      // Moving to trash - delete from database
+      console.log('📍 Calling deleteConversation for:', id)
+      try {
+        const success = await deleteConversation(id)
+        console.log('📍 deleteConversation returned:', success)
+
+        if (success) {
+          console.log('✅ Delete successful, updating local state')
+          // Remove from local state
+          setConversations((prev) => prev.filter((c) => c.id !== id))
+          // If this was the selected conversation, clear selection
+          if (selectedId === id) {
+            setSelectedId(null)
+          }
+        } else {
+          console.error('❌ Failed to delete conversation from database (deleteConversation returned false)')
+          // Check if there were any console errors from db-helpers
+          console.log('💡 Check the console above for detailed error logs from db-helpers')
+        }
+      } catch (error) {
+        console.error('💥 Exception while deleting conversation:', error)
+      }
+    } else {
+      // Restoring from trash - just update local state (can add DB update if needed)
+      console.log('♻️ Restoring conversation from trash')
+      setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, pinned: false } : c)))
+    }
   }
 
   function createFolder(name) {
@@ -259,45 +391,64 @@ export default function AIAssistantUI() {
     }
   }
 
-  function deleteConversation(id) {
+  // NOTE: deleteConversation is now imported from db-helpers, not defined locally
+
+  async function createNewChat() {
+    if (!userId) {
+      console.error("Cannot create chat: no userId")
+      return
+    }
+
+    const sessionId = `session_${Date.now()}`
+
     try {
-      setConversations((prev) => prev.filter(c => c.id !== id))
-      if (selectedId === id) {
-        const remaining = conversations.filter(c => c.id !== id)
-        setSelectedId(remaining.length > 0 ? remaining[0].id : null)
+      // Create conversation in Supabase (pass Clerk user ID)
+      const newConvo = await createConversation({
+        title: "New Chat",
+        preview: "Say hello to start...",
+        pinned: false,
+        message_count: 0,
+        crisis_level: "LOW",
+        session_id: sessionId
+      }, userId)
+
+      if (newConvo) {
+        // Add to local state
+        const item = {
+          id: newConvo.id,
+          title: newConvo.title,
+          updatedAt: newConvo.updated_at,
+          messageCount: 0,
+          preview: newConvo.preview || '',
+          pinned: false,
+          folder: "Work Projects",
+          messages: [],
+          mentalWellnessData: {
+            crisisLevel: "LOW",
+            moodEntries: [],
+            culturalContext: userProfile,
+            sessionId: sessionId,
+          },
+        }
+        setConversations((prev) => [item, ...prev])
+        setSelectedId(newConvo.id)
+        setSidebarOpen(false)
       }
     } catch (error) {
-      console.error("Failed to delete conversation:", error)
+      console.error("Failed to create new chat:", error)
     }
   }
 
-  function createNewChat() {
-    const id = Math.random().toString(36).slice(2)
-    const item = {
-      id,
-      title: "New Chat",
-      updatedAt: new Date().toISOString(),
-      messageCount: 0,
-      preview: "Say hello to start...",
-      pinned: false,
-      folder: "Work Projects",
-      messages: [], // Ensure messages array is empty for new chats
-      mentalWellnessData: {
-        crisisLevel: "LOW",
-        moodEntries: [],
-        culturalContext: userProfile,
-        sessionId: `session_${id}_${Date.now()}`,
-      },
-    }
-    setConversations((prev) => [item, ...prev])
-    setSelectedId(id)
-    setSidebarOpen(false)
-  }
-
-  async function sendMessage(convId, content) {
-    if (!content.trim()) return
+  async function sendMessage(convId, content, files = []) {
+    if (!content.trim() && files.length === 0) return
     const now = new Date().toISOString()
-    const userMsg = { id: Math.random().toString(36).slice(2), role: "user", content, createdAt: now }
+    const userMsg = {
+      id: Math.random().toString(36).slice(2),
+      role: "user",
+      content,
+      createdAt: now,
+      attachments: files.length > 0 ? files.map(f => ({ name: f.file.name, type: f.type })) : undefined
+    }
 
     // Generate a short title from the first message if it's a new chat
     const conversation = conversations.find((c) => c.id === convId)
@@ -323,7 +474,21 @@ export default function AIAssistantUI() {
       }
     }
 
-    // Update conversation with user message
+    // Save user message to Supabase (attachments are NOT saved - one-time use only)
+    try {
+      await addMessage({
+        conversation_id: convId,
+        role: 'user',
+        content: content,
+        crisis_level: null,
+        follow_up_needed: false,
+        culturally_adapted: false
+      })
+    } catch (error) {
+      console.error('Failed to save user message to Supabase:', error)
+    }
+
+    // Update conversation with user message in local state
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id !== convId) return c
@@ -350,23 +515,28 @@ export default function AIAssistantUI() {
         .map((m) => `${m.role}: ${m.content}`)
         .join("\n")
 
-      // Call mental wellness API
+      // Call mental wellness API with multimodal support
+      const formData = new FormData()
+      formData.append('message', content)
+      formData.append('context', JSON.stringify({
+        sessionId: conversation?.mentalWellnessData?.sessionId || `session_${convId}_${Date.now()}`,
+        ageContext: userProfile.lifeStage || "college student",
+        conversationHistory,
+        moodIndicators: moodTracking.moodHistory
+          .slice(0, 3)
+          .map((m) => m.mood)
+          .join(", "),
+      }))
+      formData.append('userProfile', JSON.stringify(userProfile))
+
+      // Append files if any
+      files.forEach((fileData) => {
+        formData.append('files', fileData.file)
+      })
+
       const response = await fetch("/api/mental-wellness", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: content,
-          context: {
-            sessionId: conversation?.mentalWellnessData?.sessionId || `session_${convId}_${Date.now()}`,
-            ageContext: userProfile.lifeStage || "college student",
-            conversationHistory,
-            moodIndicators: moodTracking.moodHistory
-              .slice(0, 3)
-              .map((m) => m.mood)
-              .join(", "),
-          },
-          userProfile: userProfile,
-        }),
+        body: formData,
       })
 
       const data = await response.json()
@@ -381,6 +551,24 @@ export default function AIAssistantUI() {
             { crisisLevel: data.crisisLevel, followUpNeeded: data.followUpNeeded },
             { sessionId: data.sessionId, userId: convId },
           )
+
+          // Save crisis log to Supabase
+          if (userId) {
+            try {
+              await createCrisisLog({
+                conversation_id: convId,
+                crisis_level: data.crisisLevel,
+                session_id: data.sessionId,
+                message_content: content,
+                ai_response: data.response,
+                follow_up_needed: data.followUpNeeded || false,
+                follow_up_completed: false,
+                escalated: crisisLevel === 'CRISIS'
+              }, userId)
+            } catch (error) {
+              console.error('Failed to save crisis log to Supabase:', error)
+            }
+          }
         }
       }
 
@@ -394,7 +582,32 @@ export default function AIAssistantUI() {
         finalResponse = adaptedResult.adaptedResponse
       }
 
-      // Update conversation with AI response
+      // Save assistant message to Supabase
+      try {
+        await addMessage({
+          conversation_id: convId,
+          role: 'assistant',
+          content: finalResponse,
+          crisis_level: data.crisisLevel,
+          follow_up_needed: data.followUpNeeded || false,
+          culturally_adapted: Object.keys(userProfile).length > 0
+        })
+
+        // Update conversation metadata in Supabase
+        const currentConvo = conversations.find(c => c.id === convId)
+        const newMessageCount = (currentConvo?.messageCount || 0) + 2 // User + assistant
+        await updateConversation(convId, {
+          title: newTitle || currentConvo?.title || "New Chat",
+          preview: finalResponse.slice(0, 80),
+          message_count: newMessageCount,
+          crisis_level: data.crisisLevel || 'LOW',
+          updated_at: new Date().toISOString()
+        })
+      } catch (error) {
+        console.error('Failed to save assistant message to Supabase:', error)
+      }
+
+      // Update conversation with AI response in local state
       setConversations((prev) =>
         prev.map((c) => {
           if (c.id !== convId) return c
@@ -464,8 +677,17 @@ Is there something specific you'd like to talk about right now?`,
     }
   }
 
-  function editMessage(convId, messageId, newContent) {
+  async function editMessage(convId, messageId, newContent) {
     const now = new Date().toISOString()
+
+    // Update message in Supabase
+    try {
+      await updateMessage(messageId, newContent)
+    } catch (error) {
+      console.error('Failed to update message in Supabase:', error)
+    }
+
+    // Update local state
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id !== convId) return c
@@ -503,9 +725,26 @@ Is there something specific you'd like to talk about right now?`,
 
   const composerRef = useRef(null)
 
-  const handleProfileComplete = (profile) => {
+  const handleProfileComplete = async (profile) => {
     setUserProfile(profile)
     setShowProfileSetup(false)
+    setProfileCompleted(true) // Mark profile as completed in this session
+
+    // Save profile to Supabase
+    if (userId) {
+      try {
+        await createOrUpdateUserProfile({
+          clerk_user_id: userId,
+          culture: profile.culture || null,
+          region: profile.region || null,
+          language: profile.language || null,
+          life_stage: profile.lifeStage || null,
+          preferences: profile.preferences || {}
+        })
+      } catch (error) {
+        console.error('Failed to save user profile to Supabase:', error)
+      }
+    }
 
     // Update cultural adaptation engine
     culturalAdaptationEngine.updateUserProfile(selectedId || "default", profile)
@@ -513,10 +752,27 @@ Is there something specific you'd like to talk about right now?`,
 
   const handleProfileSkip = () => {
     setShowProfileSetup(false)
+    setProfileCompleted(true) // Mark as completed even if skipped
   }
 
   const handleMoodSubmit = async (moodEntry) => {
     moodTracking.addMoodEntry(moodEntry)
+
+    // Save mood entry to Supabase
+    if (userId) {
+      try {
+        await createMoodEntry({
+          conversation_id: selectedId || null,
+          mood: moodEntry.mood,
+          intensity: moodEntry.intensity || 5,
+          triggers: moodEntry.triggers || [],
+          notes: moodEntry.notes || '',
+          activities: moodEntry.activities || []
+        }, userId)
+      } catch (error) {
+        console.error('Failed to save mood entry to Supabase:', error)
+      }
+    }
 
     // Update current conversation with mood context
     if (selectedId) {
@@ -603,12 +859,25 @@ Is there something specific you'd like to talk about right now?`,
               crisisDetection={crisisDetection}
             />
 
-            <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-              <Header createNewChat={createNewChat} sidebarCollapsed={sidebarCollapsed} setSidebarOpen={setSidebarOpen} />
+            <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden" style={{ transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)' }}>
+              {/* Mobile menu button */}
+              <div className="md:hidden sticky top-0 z-30 flex items-center gap-2 border-b bg-background/95 backdrop-blur px-4 py-3">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="inline-flex items-center justify-center rounded-sm p-2 hover:bg-accent transition-colors"
+                  aria-label="Open sidebar"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <div className="flex-1 text-center text-sm font-medium">Sahayak</div>
+              </div>
               <ChatPane
+                key={selectedId || 'no-chat'}
                 ref={composerRef}
                 conversation={selected}
-                onSend={(content) => selected && sendMessage(selected.id, content)}
+                onSend={(content, files) => selected && sendMessage(selected.id, content, files)}
                 onEditMessage={(messageId, newContent) => selected && editMessage(selected.id, messageId, newContent)}
                 onResendMessage={(messageId) => selected && resendMessage(selected.id, messageId)}
                 isThinking={isThinking && thinkingConvId === selected?.id}

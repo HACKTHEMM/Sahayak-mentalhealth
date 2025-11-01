@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, forwardRef, useImperativeHandle, useRef } from "react"
+import { useState, forwardRef, useImperativeHandle, useRef, useEffect } from "react"
 import { Pencil, RefreshCw, Check, X, Square } from "lucide-react"
 import Message from "./Message"
 import Composer from "./Composer"
@@ -15,18 +15,19 @@ import CulturalInsights from "./CulturalInsights"
 function ThinkingMessage({ onPause }) {
   return (
     <Message role="assistant">
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1">
-          <div className="h-2 w-2 animate-bounce rounded-full bg-glass-white [animation-delay:-0.3s]"></div>
-          <div className="h-2 w-2 animate-bounce rounded-full bg-glass-white [animation-delay:-0.15s]"></div>
-          <div className="h-2 w-2 animate-bounce rounded-full bg-glass-white"></div>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1.5">
+          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-current opacity-70 [animation-delay:-0.3s]"></div>
+          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-current opacity-70 [animation-delay:-0.15s]"></div>
+          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-current opacity-70"></div>
         </div>
-        <span className="text-sm text-glass/70">Sahayak is thinking...</span>
+        <span className="text-[15px] opacity-70">Sahayak is thinking...</span>
         <button
           onClick={onPause}
-          className="ml-auto glass-subtle rounded-full px-2 py-1 text-xs text-glass glass-hover"
+          className="ml-auto hover:bg-black/5 dark:hover:bg-white/5 rounded-full px-3 py-1.5 text-xs transition-colors flex items-center gap-1.5"
         >
-          <Square className="h-3 w-3" /> Pause
+          <Square className="h-3.5 w-3.5" />
+          Pause
         </button>
       </div>
     </Message>
@@ -59,6 +60,21 @@ const ChatPane = forwardRef(function ChatPane(
   const [showMoodTracker, setShowMoodTracker] = useState(false)
   const [showResources, setShowResources] = useState(false)
   const composerRef = useRef(null)
+  const messagesEndRef = useRef(null)
+  const chatContainerRef = useRef(null)
+
+  // Auto-scroll to bottom when messages change or when thinking
+  useEffect(() => {
+    const scrollToBottom = () => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+      }
+    }
+
+    // Scroll when messages change or thinking status changes
+    const timer = setTimeout(scrollToBottom, 100)
+    return () => clearTimeout(timer)
+  }, [conversation?.messages, isThinking])
 
   useImperativeHandle(
     ref,
@@ -142,11 +158,11 @@ const ChatPane = forwardRef(function ChatPane(
           Updated {timeAgo(conversation.updatedAt)} · {count} messages
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2 border-b border-white/20 dark:border-white/10 pb-5">
+        <div className="mb-6 flex flex-wrap gap-2 border-b border-black/5 dark:border-white/5 pb-5">
           {tags.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center rounded-full glass-subtle px-3 py-1 text-xs text-glass border-white/20 dark:border-white/10"
+              className="inline-flex items-center rounded-full bg-black/5 dark:bg-white/5 px-4 py-1.5 text-xs font-medium border border-black/10 dark:border-white/10"
             >
               {t}
             </span>
@@ -237,44 +253,43 @@ const ChatPane = forwardRef(function ChatPane(
             {messages.map((m) => (
               <div key={m.id} className="space-y-2">
                 {editingId === m.id ? (
-                  <div className={cls("rounded-2xl p-2 glass-strong")}>
+                  <div className="rounded-[24px] p-4 bg-card/80 backdrop-blur-sm border border-border/50">
                     <textarea
                       value={draft}
                       onChange={(e) => setDraft(e.target.value)}
-                      className="w-full resize-y rounded-xl bg-transparent p-2 text-sm outline-none text-glass placeholder:text-glass/50"
+                      className="w-full resize-y rounded-2xl bg-transparent p-3 text-[15px] outline-none placeholder:opacity-50"
                       rows={3}
                     />
-                    <div className="mt-2 flex items-center gap-2">
+                    <div className="mt-3 flex items-center gap-2">
                       <button
                         onClick={saveEdit}
-                        className="inline-flex items-center gap-1 rounded-full glass-strong px-3 py-1.5 text-xs text-glass"
+                        className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-medium hover:opacity-90 transition-opacity"
                       >
                         <Check className="h-3.5 w-3.5" /> Save
                       </button>
                       <button
                         onClick={saveAndResend}
-                        className="inline-flex items-center gap-1 rounded-full glass-subtle px-3 py-1.5 text-xs text-glass"
+                        className="inline-flex items-center gap-2 rounded-full bg-black/5 dark:bg-white/5 px-4 py-2 text-xs font-medium hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
                       >
                         <RefreshCw className="h-3.5 w-3.5" /> Save & Resend
                       </button>
                       <button
                         onClick={cancelEdit}
-                        className="inline-flex items-center gap-1 rounded-full glass-subtle px-3 py-1.5 text-xs text-glass"
+                        className="inline-flex items-center gap-2 rounded-full bg-black/5 dark:bg-white/5 px-4 py-2 text-xs font-medium hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
                       >
                         <X className="h-3.5 w-3.5" /> Cancel
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <Message role={m.role}>
-                    <div className="whitespace-pre-wrap text-glass">{m.content}</div>
+                  <Message role={m.role} attachments={m.attachments} content={m.content}>
                     {m.role === "user" && (
-                      <div className="mt-1 flex gap-2 text-[11px] text-glass/70">
-                        <button className="inline-flex items-center gap-1 hover:underline" onClick={() => startEdit(m)}>
+                      <div className="mt-2 flex gap-2 text-xs opacity-60">
+                        <button className="inline-flex items-center gap-1.5 hover:opacity-100 transition-opacity rounded-full px-2 py-1 hover:bg-black/5 dark:hover:bg-white/5" onClick={() => startEdit(m)}>
                           <Pencil className="h-3.5 w-3.5" /> Edit
                         </button>
                         <button
-                          className="inline-flex items-center gap-1 hover:underline"
+                          className="inline-flex items-center gap-1.5 hover:opacity-100 transition-opacity rounded-full px-2 py-1 hover:bg-black/5 dark:hover:bg-white/5"
                           onClick={() => onResendMessage?.(m.id)}
                         >
                           <RefreshCw className="h-3.5 w-3.5" /> Resend
@@ -295,16 +310,18 @@ const ChatPane = forwardRef(function ChatPane(
               </div>
             ))}
             {isThinking && <ThinkingMessage onPause={onPauseThinking} />}
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
           </>
         )}
       </div>
 
       <Composer
         ref={composerRef}
-        onSend={async (text) => {
-          if (!text.trim()) return
+        onSend={async (text, files) => {
+          if (!text.trim() && (!files || files.length === 0)) return
           setBusy(true)
-          await onSend?.(text)
+          await onSend?.(text, files)
           setBusy(false)
         }}
         busy={busy}
