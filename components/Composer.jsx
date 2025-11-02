@@ -217,10 +217,10 @@ const Composer = forwardRef(function Composer({ onSend, busy }, ref) {
       <div className="relative p-4">
         <div
           className={cls(
-            "mx-auto flex flex-col rounded-[24px] border bg-card/80 backdrop-blur-sm transition-all duration-200",
+            "mx-auto flex flex-col rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl transition-all duration-300",
             "max-w-3xl p-3",
-            "shadow-[0_4px_20px_rgb(0,0,0,0.08)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.3)]",
-            "hover:shadow-[0_6px_25px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_6px_25px_rgb(0,0,0,0.4)]",
+            "shadow-[0_8px_32px_rgb(0,0,0,0.1)]",
+            "hover:bg-white/15 hover:shadow-[0_12px_40px_rgb(0,0,0,0.15)]",
           )}
         >
         {/* File Attachments Preview */}

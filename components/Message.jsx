@@ -10,9 +10,10 @@ import remarkGfm from 'remark-gfm'
 export default function Message({ role, children, attachments, content, enableTTS = true }) {
   const isUser = role === "user"
   const [hasPlayed, setHasPlayed] = useState(false)
-  
+  const [plainText, setPlainText] = useState("")
+
   // TTS hook - only for assistant messages
-  const { speak, stop, isPlaying, isLoading, toggle } = useTextToSpeech({ 
+  const { speak, stop, isPlaying, isLoading, toggle } = useTextToSpeech({
     autoPlay: false // We'll manually trigger based on message appearance
   })
 
@@ -27,20 +28,24 @@ export default function Message({ role, children, attachments, content, enableTT
       .trim()
   }
 
-  // Auto-play TTS when assistant message appears
+  // Extract and store plain text
   useEffect(() => {
-    if (!isUser && enableTTS && content && !hasPlayed) {
-      const plainText = getPlainText(content)
-      if (plainText.trim()) {
-        // Small delay to make it feel natural
-        const timer = setTimeout(() => {
-          speak(plainText)
-          setHasPlayed(true)
-        }, 500)
-        return () => clearTimeout(timer)
-      }
+    if (!isUser && content) {
+      setPlainText(getPlainText(content))
     }
-  }, [content, isUser, enableTTS, hasPlayed, speak])
+  }, [content, isUser])
+
+  // Autoplay disabled - user must manually click the speak button
+  // useEffect(() => {
+  //   if (!isUser && enableTTS && plainText && !hasPlayed) {
+  //     // Small delay to make it feel natural
+  //     const timer = setTimeout(() => {
+  //       speak(plainText)
+  //       setHasPlayed(true)
+  //     }, 500)
+  //     return () => clearTimeout(timer)
+  //   }
+  // }, [plainText, isUser, enableTTS, hasPlayed, speak])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -68,19 +73,26 @@ export default function Message({ role, children, attachments, content, enableTT
       )}
       <div
         className={cls(
-          "max-w-[70%] rounded-[20px] px-4 py-3 text-[15px] leading-relaxed relative group",
+          "max-w-[70%] rounded-[20px] py-3 text-[15px] leading-relaxed relative group",
           isUser
-            ? "!bg-[#333333] dark:!bg-[#262626] !text-white shadow-md"
+            ? "!bg-[#333333] dark:!bg-[#262626] !text-white shadow-md px-4"
             : "bg-card/80 backdrop-blur-sm text-foreground border border-border/50 shadow-sm",
+          !isUser && enableTTS && content ? "pl-4 pr-12" : "px-4"
         )}
       >
         {/* TTS Control Button - only for assistant messages */}
         {!isUser && enableTTS && content && (
           <button
-            onClick={toggle}
+            onClick={() => {
+              if (isPlaying) {
+                stop()
+              } else {
+                speak(plainText)
+              }
+            }}
             disabled={isLoading}
             className={cls(
-              "absolute top-2 right-2 p-1.5 rounded-full transition-all",
+              "absolute top-3 right-3 p-1.5 rounded-full transition-all",
               "opacity-0 group-hover:opacity-100",
               "hover:bg-black/5 dark:hover:bg-white/5",
               isPlaying && "opacity-100 bg-blue-500/10 text-blue-500",

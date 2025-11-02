@@ -113,17 +113,17 @@ export function useTextToSpeech({ autoPlay = true, language = 'en-IN' } = {}) {
         setIsPlaying(true)
       }
 
-      if (autoPlay) {
-        setIsLoading(true)
-        window.speechSynthesis.speak(utterance)
-      }
+      // Always speak when called, autoPlay parameter is now ignored here
+      // The component calling this will control when to call speak()
+      setIsLoading(true)
+      window.speechSynthesis.speak(utterance)
 
     } catch (err) {
       console.error('Failed to speak:', err)
       setError(err.message || 'Failed to generate speech')
       setIsLoading(false)
     }
-  }, [autoPlay, language, cleanup, getPreferredVoice])
+  }, [language, cleanup, getPreferredVoice])
 
   // Play/Resume
   const play = useCallback(() => {
@@ -150,11 +150,16 @@ export function useTextToSpeech({ autoPlay = true, language = 'en-IN' } = {}) {
   // Toggle play/pause
   const toggle = useCallback(() => {
     if (isPlaying) {
-      pause()
+      stop()
     } else {
-      play()
+      // If we have current text and no active utterance, speak it
+      if (currentTextRef.current && !utteranceRef.current) {
+        speak(currentTextRef.current)
+      } else {
+        play()
+      }
     }
-  }, [isPlaying, play, pause])
+  }, [isPlaying, play, stop, speak])
 
   // Cleanup on unmount
   useEffect(() => {

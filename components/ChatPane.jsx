@@ -117,24 +117,13 @@ const ChatPane = forwardRef(function ChatPane(
   if (showProfileSetup) {
     return (
       <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-8">
-          <div className="flex items-center justify-center min-h-full">
-            <div className="w-full max-w-4xl">
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold mb-2">Welcome to Sahayak</h1>
-                <p className="text-lg text-zinc-600 dark:text-zinc-400">
-                  Your compassionate AI mental wellness companion for Indian youth
-                </p>
-                <p className="text-sm text-zinc-500 mt-2">
-                  Let's set up your cultural profile to provide you with the most relevant support
-                </p>
-              </div>
-              <CulturalProfileSetup
-                onProfileComplete={onProfileComplete}
-                onSkip={onProfileSkip}
-                initialProfile={userProfile}
-              />
-            </div>
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div className="w-full max-w-4xl mx-auto py-4">
+            <CulturalProfileSetup
+              onProfileComplete={onProfileComplete}
+              onSkip={onProfileSkip}
+              initialProfile={userProfile}
+            />
           </div>
         </div>
       </div>
@@ -142,27 +131,27 @@ const ChatPane = forwardRef(function ChatPane(
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col glass-bg">
+    <div className="flex h-full min-h-0 flex-1 flex-col relative">
 
       <div className="flex-1 space-y-5 overflow-y-auto px-4 py-6 sm:px-8" style={{
         maxWidth: '800px',
         marginLeft: 'auto',
         marginRight: 'auto'
       }}>
-        <div className="mb-2 text-3xl font-serif tracking-tight sm:text-4xl md:text-5xl">
-          <span className="block leading-[1.05] font-sans text-2xl text-glass">
+        <div className="mb-3">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-semibold tracking-tight leading-tight">
             {conversation.title === "New Chat" ? "Chat with Sahayak" : conversation.title}
-          </span>
+          </h1>
         </div>
-        <div className="mb-4 text-sm text-glass/70">
+        <div className="mb-4 text-sm opacity-60">
           Updated {timeAgo(conversation.updatedAt)} · {count} messages
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2 border-b border-black/5 dark:border-white/5 pb-5">
+        <div className="mb-6 flex flex-wrap gap-2 border-b border-white/10 pb-5">
           {tags.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center rounded-full bg-black/5 dark:bg-white/5 px-4 py-1.5 text-xs font-medium border border-black/10 dark:border-white/10"
+              className="inline-flex items-center rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-xs font-medium border border-white/20"
             >
               {t}
             </span>

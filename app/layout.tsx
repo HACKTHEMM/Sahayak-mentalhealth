@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${funnelDisplay.variable}`}>
-        <body className={GeistSans.className}>
+        <body className={`${GeistSans.className} font-sans`}>
           {children}
           <Analytics />
         </body>

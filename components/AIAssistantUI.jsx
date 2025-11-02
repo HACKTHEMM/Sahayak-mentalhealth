@@ -821,9 +821,14 @@ Is there something specific you'd like to talk about right now?`,
   const showLandingPage = conversations.length === 0
 
   return (
-    <div className="h-screen w-full glass-bg text-foreground overflow-hidden">
+    <div className="h-screen w-full relative text-foreground overflow-hidden">
+      {/* Subtle background for dashboard */}
+      {!showLandingPage && (
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/90" />
+      )}
+
       {showLandingPage ? (
-        <LandingPage 
+        <LandingPage
           onGetStarted={createNewChat}
           userProfile={userProfile}
           onShowProfileSetup={() => setShowProfileSetup(true)}
@@ -832,7 +837,7 @@ Is there something specific you'd like to talk about right now?`,
         />
       ) : (
         <>
-          <div className="flex h-screen md:h-[calc(100vh-0px)] overflow-hidden">
+          <div className="relative z-10 flex h-screen md:h-[calc(100vh-0px)] overflow-hidden">
             <Sidebar
               open={sidebarOpen}
               onClose={() => setSidebarOpen(false)}
@@ -864,12 +869,12 @@ Is there something specific you'd like to talk about right now?`,
               crisisDetection={crisisDetection}
             />
 
-            <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden" style={{ transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)' }}>
+            <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden transition-all duration-300 ease-out">
               {/* Mobile menu button */}
               <div className="md:hidden sticky top-0 z-30 flex items-center gap-2 border-b bg-background/95 backdrop-blur px-4 py-3">
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="inline-flex items-center justify-center rounded-sm p-2 hover:bg-accent transition-colors"
+                  className="inline-flex items-center justify-center rounded-md p-2 hover:bg-accent transition-colors"
                   aria-label="Open sidebar"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

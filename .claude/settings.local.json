@@ -6,7 +6,12 @@
       "Bash(npm run dev:*)",
       "Bash(powershell -Command:*)",
       "Bash(del \"C:\\Users\\vinit\\OneDrive\\Documents\\Sahayak-mentalhealth\\supabase-migration-attachments.sql\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nFix critical bugs and complete Supabase integration\n\nMajor fixes:\n- Fix conversation deletion not persisting to database\n- Fix nested button error in ConversationRow\n- Fix ReactMarkdown className deprecation\n- Fix cultural profile survey appearing on every refresh\n- Remove local deleteConversation function shadowing import\n\nSupabase integration:\n- Complete database integration for conversations, messages, profiles\n- Add Clerk to Supabase UUID mapping helpers\n- Save user profiles, mood entries, and crisis logs to database\n- Load conversations and messages from database on mount\n\nUI improvements:\n- Update theme colors (matte black dark mode, pale off-white light mode)\n- Fix message bubble styling and text colors\n- Add markdown rendering support in messages\n- Implement auto-scroll for new messages\n- Smooth sidebar animations (remove spring effect)\n- Enhanced multimodal file attachment UI\n\nDocumentation:\n- Add CLAUDE.md for project context\n- Add comprehensive database schema\n- Update setup and implementation guides\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(find:*)",
+      "Bash(pnpm build:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

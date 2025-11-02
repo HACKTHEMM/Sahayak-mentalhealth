@@ -10,10 +10,10 @@ export default function ConversationRow({ data, active, onSelect, onTogglePin, s
         <button
           onClick={onSelect}
           className={cls(
-            "-mx-1 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left overflow-hidden",
+            "-mx-1 flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left overflow-hidden transition-all duration-200",
             active
-              ? "glass-strong text-glass shadow-glass"
-              : "glass-hover text-glass/80"
+              ? "bg-white/15 backdrop-blur-md border border-white/20"
+              : "hover:bg-white/10"
           )}
           title={data.title}
         >
@@ -41,7 +41,7 @@ export default function ConversationRow({ data, active, onSelect, onTogglePin, s
             onTogglePin();
           }}
           title={data.pinned ? "Restore" : "Delete"}
-          className="absolute right-1 rounded-md p-1 text-glass/60 opacity-0 transition group-hover:opacity-100 glass-hover z-10"
+          className="absolute right-3 rounded-md p-1 text-glass/60 opacity-0 transition group-hover:opacity-100 glass-hover z-10"
           aria-label={data.pinned ? "Unpin conversation" : "Pin conversation"}
         >
           {data.pinned ? (

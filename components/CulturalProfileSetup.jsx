@@ -94,7 +94,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
               <select
                 value={profile.state}
                 onChange={(e) => updateProfile("state", e.target.value)}
-                className="w-full border rounded-sm p-2 bg-background"
+                className="w-full border rounded-md p-2 bg-background"
               >
                 <option value="">Select your state</option>
                 {INDIAN_STATES.map((state) => (
@@ -109,7 +109,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
                 value={profile.city}
                 onChange={(e) => updateProfile("city", e.target.value)}
                 placeholder="e.g., Mumbai, Bangalore, Delhi"
-                className="w-full border rounded-sm p-2 bg-background"
+                className="w-full border rounded-md p-2 bg-background"
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Helps us suggest local support resources and helplines
@@ -126,7 +126,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
                 <Label
                   key={key}
                   className={cls(
-                    "flex items-start gap-3 border rounded-sm p-4 cursor-pointer transition-colors hover:border-primary",
+                    "flex items-start gap-3 border rounded-md p-4 cursor-pointer transition-colors hover:border-primary",
                     profile.region === key && "border-primary bg-accent/50"
                   )}
                 >
@@ -149,7 +149,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
                 <Label
                   key={key}
                   className={cls(
-                    "flex items-start gap-3 border rounded-sm p-4 cursor-pointer transition-colors hover:border-primary",
+                    "flex items-start gap-3 border rounded-md p-4 cursor-pointer transition-colors hover:border-primary",
                     profile.lifeStage === key && "border-primary bg-accent/50"
                   )}
                 >
@@ -171,7 +171,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
               <Label
                 key={key}
                 className={cls(
-                  "flex items-start gap-3 border rounded-sm p-4 cursor-pointer transition-colors hover:border-primary",
+                  "flex items-start gap-3 border rounded-md p-4 cursor-pointer transition-colors hover:border-primary",
                   profile.primaryStressors.includes(key) && "border-primary bg-accent/50"
                 )}
               >
@@ -207,7 +207,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
                 <Label
                   key={option.key}
                   className={cls(
-                    "flex items-start gap-3 border rounded-sm p-4 cursor-pointer transition-colors hover:border-primary",
+                    "flex items-start gap-3 border rounded-md p-4 cursor-pointer transition-colors hover:border-primary",
                     profile.familyDynamics === option.key && "border-primary bg-accent/50"
                   )}
                 >
@@ -229,7 +229,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
               <Label
                 key={language}
                 className={cls(
-                  "flex items-center gap-3 border rounded-sm p-3 cursor-pointer transition-colors hover:border-primary",
+                  "flex items-center gap-3 border rounded-md p-3 cursor-pointer transition-colors hover:border-primary",
                   profile.languages.includes(language.toLowerCase()) && "border-primary bg-accent/50"
                 )}
               >
@@ -267,7 +267,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
                 <Label
                   key={option.key}
                   className={cls(
-                    "flex items-start gap-3 border rounded-sm p-4 cursor-pointer transition-colors hover:border-primary",
+                    "flex items-start gap-3 border rounded-md p-4 cursor-pointer transition-colors hover:border-primary",
                     profile.culturalPreferences[option.key] && "border-primary bg-accent/50"
                   )}
                 >
@@ -294,10 +294,10 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="w-full">
         {/* Progress */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="text-sm text-muted-foreground">
               Step {currentStep + 1} of {STEPS.length}
@@ -306,7 +306,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
               Skip
             </Button>
           </div>
-          <div className="h-1 bg-muted rounded-sm overflow-hidden">
+          <div className="h-1 bg-muted rounded-md overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-300"
               style={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
@@ -315,8 +315,8 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
         </div>
 
         {/* Step Content */}
-        <div className="border rounded-sm p-6 mb-6">
-          <div className="mb-6">
+        <div className="border rounded-md p-4 mb-4">
+          <div className="mb-4">
             <h2 className="text-2xl font-semibold mb-2">{currentStepData.title}</h2>
             <p className="text-sm text-muted-foreground">{currentStepData.description}</p>
           </div>
@@ -331,7 +331,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
             size="sm"
             onClick={handleBack}
             disabled={currentStep === 0}
-            className="rounded-sm"
+            className="rounded-md"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
@@ -341,7 +341,7 @@ export default function CulturalProfileSetup({ onProfileComplete, onSkip, initia
             onClick={handleNext}
             disabled={!canProceed()}
             size="sm"
-            className="rounded-sm"
+            className="rounded-md"
           >
             {currentStep === STEPS.length - 1 ? "Complete" : "Next"}
             <ArrowRight className="h-4 w-4 ml-1" />

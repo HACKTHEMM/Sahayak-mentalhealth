@@ -69,7 +69,7 @@ export default function RegionalResourcesCard({ resources, type = "helplines" })
           {resources.slice(0, 2).map((org, idx) => (
             <div
               key={idx}
-              className="border border-green-200 dark:border-green-800 p-3 rounded-sm bg-white dark:bg-slate-900"
+              className="border border-green-200 dark:border-green-800 p-3 rounded-md bg-white dark:bg-slate-900"
             >
               <div className="font-semibold">{org.name}</div>
               <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">

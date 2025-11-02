@@ -55,13 +55,13 @@ export default function Sidebar({
       <motion.aside
         initial={{ width: 280 }}
         animate={{ width: 60 }}
-        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="hidden md:flex z-50 h-full shrink-0 flex-col border-r bg-sidebar border-sidebar-border overflow-hidden"
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="hidden md:flex z-50 h-full shrink-0 flex-col border-r glass-strong border-white/10 overflow-hidden backdrop-blur-xl"
       >
         <div className="flex items-center justify-center p-3">
           <button
             onClick={() => setSidebarCollapsed(false)}
-            className="rounded-sm p-2 hover:bg-sidebar-accent transition-colors"
+            className="rounded-md p-2 hover:bg-white/10 transition-colors"
             aria-label="Open sidebar"
             title="Open sidebar"
           >
@@ -69,20 +69,20 @@ export default function Sidebar({
           </button>
         </div>
 
-        <div className="flex flex-col items-center gap-2 px-2">
+        <div className="flex flex-col items-center justify-center gap-2 px-3">
           <button
             onClick={createNewChat}
-            className="rounded-sm p-2 hover:bg-sidebar-accent transition-colors w-full flex items-center justify-center"
+            className="rounded-md p-2 hover:bg-white/10 transition-colors"
             title="New Chat"
           >
             <Plus className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="mt-auto p-3 flex flex-col items-center gap-2">
+        <div className="mt-auto p-3 flex flex-col items-center justify-center gap-2">
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="rounded-sm p-2 hover:bg-sidebar-accent transition-colors"
+            className="rounded-md p-2 hover:bg-white/10 transition-colors"
             title="Toggle theme"
           >
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -102,7 +102,7 @@ export default function Sidebar({
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-40 bg-black/60 md:hidden"
             onClick={onClose}
           />
@@ -116,15 +116,15 @@ export default function Sidebar({
             initial={{ x: -280 }}
             animate={{ x: (open || !isMobile) ? 0 : -280 }}
             exit={{ x: -280 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className={cls(
-              "z-50 flex h-full w-[280px] shrink-0 flex-col border-r bg-sidebar border-sidebar-border overflow-hidden",
+              "z-50 flex h-full w-[280px] shrink-0 flex-col border-r glass-strong border-white/10 overflow-hidden backdrop-blur-xl",
               "fixed inset-y-0 left-0 md:static md:translate-x-0",
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
-              <div className="text-sm font-medium">Sahayak</div>
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h1 className="text-2xl font-display font-semibold tracking-tight">Sahayak</h1>
               <button
                 onClick={() => {
                   if (isMobile) {
@@ -133,7 +133,7 @@ export default function Sidebar({
                     setSidebarCollapsed(true)
                   }
                 }}
-                className="rounded-sm p-1.5 hover:bg-sidebar-accent transition-colors"
+                className="rounded-md p-1.5 hover:bg-sidebar-accent transition-colors"
                 aria-label="Close sidebar"
               >
                 <PanelLeftClose className="h-4 w-4" />
@@ -144,7 +144,7 @@ export default function Sidebar({
             <div className="p-3">
               <button
                 onClick={createNewChat}
-                className="flex w-full items-center justify-center gap-2 rounded-sm bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 transition-all duration-300 hover:scale-[1.02]"
               >
                 <Plus className="h-4 w-4" />
                 New Chat
@@ -160,7 +160,7 @@ export default function Sidebar({
                 onToggle={() => setCollapsed((s) => ({ ...s, recent: !s.recent }))}
               >
                 {recent.length === 0 ? (
-                  <div className="select-none rounded-sm border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">
+                  <div className="select-none rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">
                     No conversations yet
                   </div>
                 ) : (
@@ -179,11 +179,11 @@ export default function Sidebar({
             </nav>
 
             {/* Footer with User Profile and Theme */}
-            <div className="mt-auto border-t border-sidebar-border p-3 space-y-2">
+            <div className="mt-auto border-t border-white/10 p-3 space-y-2">
               {/* Cultural Profile Button */}
               <button
                 onClick={onShowProfileSetup}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors text-left text-sm"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 transition-all duration-200 text-left text-sm"
                 title="Edit cultural profile"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +211,7 @@ export default function Sidebar({
                 </div>
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="rounded-sm p-1.5 hover:bg-sidebar-accent transition-colors"
+                  className="rounded-xl p-2 hover:bg-white/10 transition-all duration-200"
                   title="Toggle theme"
                 >
                   {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
