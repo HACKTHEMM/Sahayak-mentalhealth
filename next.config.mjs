@@ -9,6 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Enable standalone output for Docker/Cloud Run
+  output: 'standalone',
 }
 
 export default nextConfig
